@@ -16,7 +16,7 @@
         Pieslēgties
       </button>
       <button class="px-4 py-2 bg-black text-white font-semibold rounded-md hover:bg-gray-800">
-        Reģistrēties
+        <RouterLink to="/login"> Reģistrēties </RouterLink>
       </button>
     </div>
   </header>
