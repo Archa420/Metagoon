@@ -1,10 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from '../views/Home.vue'
+import Vakances from '@/views/Vakances.vue'
 
 
 const routes = [
   { path: '/', name: 'home', component: Home },
-  // you can add /favoriti later
+  { path: '/vakances', name: 'vakances', component: Vakances}
 ]
 
 const router = createRouter({

@@ -1,7 +1,6 @@
 <template>
   <div class="home container">
-    <h1>Sākums</h1>
-    <section class="about">
+    <section class="Par mums">
       <h2>Par MetaGoon</h2>
       <p>
         MetaGoon ir platforma, kas palīdz darba meklētājiem atrast piemērotākās
@@ -20,12 +19,3 @@
   </div>
 </template>
 
-<style scoped>
-.about {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  line-height: 1.6;
-}
-</style>
