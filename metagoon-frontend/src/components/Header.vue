@@ -13,10 +13,10 @@
     <!-- Auth buttons -->
     <div class="flex gap-3">
       <button class="px-4 py-2 bg-black text-white font-semibold rounded-md hover:bg-gray-800">
-        Pieslēgties
+        <RouterLink to="/login"> Reģistrēties </RouterLink>
       </button>
       <button class="px-4 py-2 bg-black text-white font-semibold rounded-md hover:bg-gray-800">
-        <RouterLink to="/login"> Reģistrēties </RouterLink>
+        Pieslēgties
       </button>
     </div>
   </header>
