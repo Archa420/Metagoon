@@ -1,31 +1,65 @@
 <template>
-
-    <div class="mx-auto flex min-h-screen w-full items-center justify-center bg-gray-900">
+  <div class="min-h-screen flex items-center justify-center bg-gray-900 px-4">
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 space-y-6">
+      
+      <!-- Heading -->
+      <div class="text-center">
+        <h1 class="text-3xl font-extrabold text-gray-900">Pieslēgties</h1>
         
-        <div class="login container justify-center flex	max-w-screen bg-white flex-1">
-            <div class="lg:w-1/2 xl:w-5/12 p-6 sm:p-12">
-                <div class="mt-12 flex flex-col items-center">
-                
-                <h1 class="text-2xl xl:text-3xl font-extrabold">Pieslēdzies!</h1>
-                <div class="w-full border-none transform border-b-2 bg-transparent text-lg duration-300 focus-within:border-indigo-500">
-                    <label for="Username"><b>Lietotājvārds</b></label>
-                    <input type="text" placeholder="Ievadi lietotājvārdu" name="Username" class="w-full border-none bg-transparent outline-none placeholder:italic focus:outline-none" >
-                </div>
-                <div class="w-full border-none transform border-b-2 bg-transparent text-lg duration-300 focus-within:border-indigo-500" >
-                    <label for="Password"><b>Parole</b></label>
-                    <input type="password" placeholder="Ievadi paroli" name="Parole" class="w-full border-none bg-transparent outline-none placeholder:italic focus:outline-none">
-                </div>    
-                
-                <button type="submit">Pieslēgties</button>
-            
-                <label> 
-                <input type="checkbox" checked="checked" name="remember"> Atcerēties mani
-                </label>
-            
-                <button type="button" class="Atceltpoga">Atcelt</button>
-                <span class="Password">Aizmirsi <a href="#">paroli?</a></span>
-                </div>
-            </div>
+      </div>
+
+      <!-- Form -->
+      <form class="space-y-5">
+        
+        <!-- Username -->
+        <div>
+          <label for="username" class="block text-sm font-medium text-gray-700">Lietotājvārds</label>
+          <input 
+            id="username" 
+            type="text" 
+            placeholder="Ievadi lietotājvārdu"
+            class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 placeholder-gray-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+          />
         </div>
+
+        <!-- Password -->
+        <div>
+          <label for="password" class="block text-sm font-medium text-gray-700">Parole</label>
+          <input 
+            id="password" 
+            type="password" 
+            placeholder="Ievadi paroli"
+            class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 placeholder-gray-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+          />
+        </div>
+
+        <!-- Remember me + Forgot password -->
+        <div class="flex items-center justify-between">
+          <label class="flex items-center text-sm text-gray-600">
+            <input type="checkbox" class="h-4 w-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500" />
+            <span class="ml-2">Atcerēties mani</span>
+          </label>
+          <a href="#" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">Aizmirsi paroli?</a>
+        </div>
+
+        <!-- Buttons -->
+        <div class="space-y-3">
+          <button 
+            type="submit"
+            class="w-full rounded-lg bg-indigo-600 px-4 py-2 text-white font-semibold shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+          >
+            Pieslēgties
+          </button>
+
+          <button 
+            type="button"
+            class="w-full rounded-lg bg-gray-100 px-4 py-2 text-gray-700 font-semibold hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+          >
+            Atcelt
+          </button>
+        </div>
+
+      </form>
     </div>
+  </div>
 </template>
