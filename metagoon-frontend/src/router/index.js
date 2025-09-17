@@ -4,7 +4,7 @@ import Vakances from '@/views/Vakances.vue'
 import Favoriti from '@/views/Favoriti.vue'
 import Login from '@/views/Login.vue'
 import Regis from '@/views/Regis.vue'
-
+import Profile from '@/views/Profile.vue'
 
 const routes = [
   { path: '/', name: 'home', component: Home },
@@ -15,8 +15,8 @@ const routes = [
      }},
      { path: '/registracija', name: 'registracija', component: Regis, meta: {
       hideHeader: true,
-     }}
-
+     }},
+  { path: '/profile', name: "profile", component: Profile}
 ]
 
 const router = createRouter({
