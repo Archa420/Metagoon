@@ -19,17 +19,18 @@ class AuthController extends Controller
             'gender'    => 'nullable|string',
             'age'       => 'nullable|integer|min:16',
             'role'      => 'required|in:bezdarbnieks,darbinieks,uzņēmējs',
-            'company_number' => 'nullable|string|required_if:role,uzņēmējs',
-            'company_address'=> 'nullable|string|required_if:role,uzņēmējs',
+            'company_number' => 'nullable|required_if:role,uzņēmējs|string',
+            'company_address'=> 'nullable|required_if:role,uzņēmējs|string',
         ]);
 
         $user = User::create([
-            'name' => $validated['firstname'].' '.$validated['lastname'],
-            'username' => $validated['username'],
-            'password' => Hash::make($validated['password']),
-            'gender'   => $validated['gender'] ?? null,
-            'age'      => $validated['age'] ?? null,
-            'role'     => $validated['role'],
+            'firstname' => $validated['firstname'],
+            'lastname'  => $validated['lastname'],
+            'username'  => $validated['username'],
+            'password'  => Hash::make($validated['password']),
+            'gender'    => $validated['gender'] ?? null,
+            'age'       => $validated['age'] ?? null,
+            'role'      => $validated['role'],
             'company_number' => $validated['company_number'] ?? null,
             'company_address'=> $validated['company_address'] ?? null,
         ]);
@@ -73,6 +74,7 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         $request->user()->tokens()->delete();
+
         return response()->json(['message' => 'Atslēgts veiksmīgi']);
     }
 }

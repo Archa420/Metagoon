@@ -15,11 +15,15 @@
             aria-hidden="true"
           >
             <svg viewBox="0 0 24 24" class="h-5 w-5" fill="currentColor">
-              <path d="M12 2a2 2 0 0 1 1.79 1.1l7 14A2 2 0 0 1 19 20H5a2 2 0 0 1-1.79-2.9l7-14A2 2 0 0 1 12 2z" />
+              <path
+                d="M12 2a2 2 0 0 1 1.79 1.1l7 14A2 2 0 0 1 19 20H5a2 2 0 0 1-1.79-2.9l7-14A2 2 0 0 1 12 2z"
+              />
             </svg>
           </span>
           <h1 class="text-2xl font-extrabold tracking-tight">
-            <span class="bg-gradient-to-r from-black via-gray-800 to-black bg-clip-text text-transparent dark:from-white dark:via-gray-200 dark:to-white">
+            <span
+              class="bg-gradient-to-r from-black via-gray-800 to-black bg-clip-text text-transparent dark:from-white dark:via-gray-200 dark:to-white"
+            >
               MetaGoon
             </span>
           </h1>
@@ -34,18 +38,37 @@
 
         <!-- Auth buttons -->
         <div class="flex items-center gap-3">
-          <RouterLink
-            to="/login"
-            class="rounded-xl border border-gray-300 px-4 py-2 text-sm font-semibold hover:bg-gray-100 active:scale-[.99] transition dark:border-gray-700 dark:hover:bg-gray-800"
-          >
-            Pieslēgties
-          </RouterLink>
-          <RouterLink
-            to="/registracija"
-            class="rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white shadow hover:bg-gray-800 active:scale-[.99] transition dark:bg-white dark:text-black dark:hover:bg-gray-100"
-          >
-            Reģistrēties
-          </RouterLink>
+          <!-- If logged in, show Profile + Logout -->
+          <template v-if="isLoggedIn">
+            <RouterLink
+              to="/profile"
+              class="rounded-xl border border-gray-300 px-4 py-2 text-sm font-semibold hover:bg-gray-100 active:scale-[.99] transition dark:border-gray-700 dark:hover:bg-gray-800"
+            >
+              Profils
+            </RouterLink>
+            <button
+              @click="logout"
+              class="rounded-xl bg-red-500 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-red-600 active:scale-[.99] transition"
+            >
+              Izrakstīties
+            </button>
+          </template>
+
+          <!-- If logged out, show Login + Register -->
+          <template v-else>
+            <RouterLink
+              to="/login"
+              class="rounded-xl border border-gray-300 px-4 py-2 text-sm font-semibold hover:bg-gray-100 active:scale-[.99] transition dark:border-gray-700 dark:hover:bg-gray-800"
+            >
+              Pieslēgties
+            </RouterLink>
+            <RouterLink
+              to="/registracija"
+              class="rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white shadow hover:bg-gray-800 active:scale-[.99] transition dark:bg-white dark:text-black dark:hover:bg-gray-100"
+            >
+              Reģistrēties
+            </RouterLink>
+          </template>
         </div>
       </div>
     </div>
@@ -54,7 +77,20 @@
 
 <script setup lang="ts">
 import { RouterLink, useRoute } from 'vue-router'
-import { computed, defineComponent, h } from 'vue'
+import { computed, defineComponent, h, ref, onMounted } from 'vue'
+
+/** Track login state based on token in localStorage */
+const isLoggedIn = ref(false)
+
+onMounted(() => {
+  isLoggedIn.value = !!localStorage.getItem('token')
+})
+
+const logout = () => {
+  localStorage.removeItem('token')
+  isLoggedIn.value = false
+  window.location.href = '/' // redirect to home
+}
 
 type NavLinkProps = {
   to: string

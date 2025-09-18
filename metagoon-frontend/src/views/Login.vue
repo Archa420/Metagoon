@@ -9,7 +9,7 @@
       </div>
 
       <!-- Form -->
-      <form class="space-y-5">
+      <form class="space-y-5" @submit.prevent="login">
         
         <!-- Username -->
         <div>
@@ -18,8 +18,10 @@
             id="username" 
             type="text" 
             placeholder="Ievadi lietotājvārdu"
+            v-model="username"
             class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 placeholder-gray-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
           />
+
         </div>
 
         <!-- Password -->
@@ -29,6 +31,7 @@
             id="password" 
             type="password" 
             placeholder="Ievadi paroli"
+            v-model="password"
             class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 placeholder-gray-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
           />
         </div>
@@ -45,11 +48,11 @@
         <!-- Buttons -->
         <div class="space-y-3">
           <button 
-            type="submit"
-            class="w-full rounded-lg bg-indigo-600 px-4 py-2 text-white font-semibold shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-          >
-            Pieslēgties
-          </button>
+          type="submit"
+          class="w-full rounded-lg bg-indigo-600 px-4 py-2 text-white font-semibold shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+        >
+          Pieslēgties
+        </button>
 
           <button 
             type="button"
@@ -63,3 +66,25 @@
     </div>
   </div>
 </template>
+<script setup lang="ts">
+import { ref } from "vue";
+import api from "../services/api.js"; // your Axios instance
+
+const username = ref("");
+const password = ref("");
+
+const login = async () => {
+  try {
+    const response = await api.post("/login", {
+      username: username.value,
+      password: password.value,
+    });
+
+    localStorage.setItem("token", response.data.token);
+    window.location.href = "/profile"; // redirect after login
+  } catch (err: any) {
+    console.error(err.response?.data || err);
+    alert("Nepareizs lietotājvārds vai parole"); // simple feedback
+  }
+};
+</script>
