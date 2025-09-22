@@ -1,6 +1,6 @@
 <script setup>
 defineProps({
-  logo: String,
+  logo: String, // just the path from DB: "vacancy_logos/filename.png"
   title: String,
   company: String,
   salary: String,
@@ -11,7 +11,7 @@ defineProps({
 <template>
   <div class="flex items-start gap-4 p-6 bg-white rounded-2xl shadow-md hover:shadow-lg transition">
     <img
-      :src="logo ? '/storage/' + logo : 'default-logo.png'"
+      :src="logo ? `http://127.0.0.1:8000/storage/${logo}` : '/default-logo.png'"
       alt="company logo"
       class="w-16 h-16 rounded-xl object-cover border"
     />

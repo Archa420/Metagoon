@@ -10,54 +10,82 @@ const newVacancy = ref({
   title: "",
   salary: "",
   description: "",
-  logo: "", // filename only
+  logo: null, // File object
 });
+const logoPreview = ref(null);
 const error = ref(null);
 
-// Example predefined logos (must exist in public/images)
-const availableLogos = ["logo1.png", "logo2.png", "logo3.png"];
-
+// Fetch all vacancies
 const fetchJobs = async () => {
   try {
     const res = await api.get("/vacancies");
     jobs.value = res.data;
+    jobs.value.forEach(j => console.log("Fetched image URL:", j.logo_url));
   } catch (err) {
-    console.error(err);
+    console.error("Failed to fetch jobs:", err);
   }
 };
 
+// Fetch authenticated user
 const fetchUser = async () => {
   try {
     const res = await api.get("/user");
     user.value = res.data;
+    console.log("Logged-in user:", user.value);
   } catch (err) {
-    console.error(err);
+    console.error("Failed to fetch user:", err);
+    user.value = null;
   }
 };
 
+// Handle file selection and preview
+const handleFileChange = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  newVacancy.value.logo = file;
+
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    logoPreview.value = event.target.result;
+  };
+  reader.readAsDataURL(file);
+};
+
+// Create a new vacancy
 const createVacancy = async () => {
   error.value = null;
   try {
+    let logoPath = null;
+
+    if (newVacancy.value.logo) {
+      const formData = new FormData();
+      formData.append("file", newVacancy.value.logo);
+
+      const uploadRes = await api.post("/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      logoPath = uploadRes.data.path; // "vacancy_logos/filename.png"
+    }
+
     await api.post("/vacancies", {
       title: newVacancy.value.title,
       salary: newVacancy.value.salary,
       description: newVacancy.value.description,
-      logo: newVacancy.value.logo, // just filename
+      logo: logoPath,
     });
 
-    newVacancy.value = { title: "", salary: "", description: "", logo: "" };
+    // Reset form
+    newVacancy.value = { title: "", salary: "", description: "", logo: null };
+    logoPreview.value = null;
     showModal.value = false;
     fetchJobs();
   } catch (err) {
-    console.error(err);
-    if (err.response) {
-      error.value =
-        err.response.data?.message ||
-        JSON.stringify(err.response.data?.errors || err.response.data) ||
-        `Server error: ${err.response.status}`;
-    } else {
-      error.value = err.message || "Unknown error";
-    }
+    console.error("Create vacancy error:", err);
+    error.value =
+      err.response?.data?.message ||
+      JSON.stringify(err.response?.data?.errors) ||
+      "Unknown error";
   }
 };
 
@@ -72,94 +100,49 @@ onMounted(() => {
     <!-- Header -->
     <div class="flex items-center justify-between">
       <h1 class="text-3xl font-bold text-gray-800">Vakances</h1>
+
+      <!-- Button visible only for employers -->
       <button
-        v-if="user"
+        v-if="user && user.role === 'uzņēmējs'"
         @click="showModal = true"
         class="bg-indigo-600 text-white px-4 py-2 rounded-lg shadow hover:bg-indigo-700 transition-colors"
       >
-        Izveidot jaunu vakanci
+        Create Vacancy
       </button>
     </div>
 
-    <!-- Vacancies list -->
+    <!-- Vacancy list -->
     <div class="space-y-4">
-      <JobCard v-for="(job, index) in jobs" :key="index" v-bind="job" />
+      <JobCard v-for="job in jobs" :key="job.id" v-bind="job" />
     </div>
   </div>
 
-  <!-- Create Vacancy Modal -->
+  <!-- Create Vacancy Modal (for employers only) -->
   <div
     v-if="showModal"
     class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50"
   >
     <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg p-6">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-2xl font-bold text-gray-800">Izveidot vakanci</h2>
-        <button @click="showModal = false" class="text-gray-500 hover:text-gray-800">✖</button>
-      </div>
+      <h2 class="text-2xl font-bold mb-4">Create Vacancy</h2>
 
       <form @submit.prevent="createVacancy" class="space-y-4">
-        <!-- Title -->
+        <input type="text" v-model="newVacancy.title" placeholder="Title" required class="w-full p-2 border rounded" />
+        <input type="text" v-model="newVacancy.salary" placeholder="Salary" required class="w-full p-2 border rounded" />
+        <textarea v-model="newVacancy.description" placeholder="Description" required class="w-full p-2 border rounded"></textarea>
+
         <div>
-          <label class="block text-gray-700">Vakances nosaukums</label>
-          <input
-            type="text"
-            v-model="newVacancy.title"
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-            required
-          />
+          <input type="file" accept="image/*" @change="handleFileChange" />
+          <img v-if="logoPreview" :src="logoPreview" class="mt-2 w-32 h-32 object-contain border rounded" />
         </div>
 
-        <!-- Salary -->
-        <div>
-          <label class="block text-gray-700">Alga</label>
-          <input
-            type="text"
-            v-model="newVacancy.salary"
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-            required
-          />
-        </div>
-
-        <!-- Description -->
-        <div>
-          <label class="block text-gray-700">Apraksts</label>
-          <textarea
-            v-model="newVacancy.description"
-            rows="4"
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-            required
-          ></textarea>
-        </div>
-
-        <!-- Logo selection -->
-        <div>
-          <label class="block text-gray-700">Logo</label>
-          <select v-model="newVacancy.logo" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-            <option disabled value="">Izvēlies logo</option>
-            <option v-for="logo in availableLogos" :key="logo" :value="logo">
-              {{ logo }}
-            </option>
-          </select>
-          <img
-            v-if="newVacancy.logo"
-            :src="`/images/${newVacancy.logo}`"
-            class="mt-2 w-32 h-32 object-contain border rounded"
-            alt="Logo Preview"
-          />
-        </div>
-
-        <!-- Submit -->
-        <button
-          type="submit"
-          class="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700"
-        >
-          Saglabāt
+        <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700">
+          Save Vacancy
         </button>
 
-        <!-- Error message -->
         <div v-if="error" class="text-red-500 text-sm mt-2">{{ error }}</div>
       </form>
+
+      <button @click="showModal = false" class="mt-4 px-4 py-2 bg-gray-300 rounded">Close</button>
     </div>
   </div>
 </template>

@@ -18,9 +18,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profile', [AuthController::class, 'profile']);
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    // Vacancy file upload
-    Route::post('/upload', [JobVacanciesController::class, 'upload']);
-
-    // Create a new vacancy
+    Route::post('/upload', [JobVacanciesController::class, 'upload']); // file upload
     Route::post('/vacancies', [JobVacanciesController::class, 'store']);
 });
