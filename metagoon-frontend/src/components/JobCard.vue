@@ -10,7 +10,11 @@ defineProps({
 
 <template>
   <div class="flex items-start gap-4 p-6 bg-white rounded-2xl shadow-md hover:shadow-lg transition">
-    <img :src="logo" alt="company logo" class="w-16 h-16 rounded-xl object-cover border" />
+    <img
+      :src="logo ? '/storage/' + logo : 'default-logo.png'"
+      alt="company logo"
+      class="w-16 h-16 rounded-xl object-cover border"
+    />
     <div class="flex flex-col">
       <h2 class="text-xl font-semibold text-gray-800">{{ title }}</h2>
       <p class="text-sm text-gray-500">{{ company }}</p>

@@ -26,4 +26,8 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+    public function jobVacancies()
+{
+    return $this->hasMany(JobVacancy::class);
+}
 }
