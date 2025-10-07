@@ -79,7 +79,7 @@ const login = async () => {
       username: username.value,
       password: password.value,
     });
-
+    localStorage.setItem("role", response.data.user.role);
     localStorage.setItem("token", response.data.token);
     window.location.href = "/profile"; // redirect after login
   } catch (err: any) {

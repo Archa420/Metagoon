@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\JobVacanciesController;
+use App\Http\Controllers\JobApplicationsController;
 
 // Auth routes
 Route::post('/register', [AuthController::class, 'register']);
@@ -22,7 +23,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // Vacancy CRUD
     Route::post('/vacancies', [JobVacanciesController::class, 'store']);
     Route::delete('/vacancies/{id}', [JobVacanciesController::class, 'destroy']);
-
+    Route::post('/vacancies/{id}/apply', [JobApplicationsController::class, 'apply']);
+    Route::get('/applications', [JobApplicationsController::class, 'employerApplications']);
     // File upload
     Route::post('/upload', [JobVacanciesController::class, 'upload']);
 });

@@ -11,7 +11,18 @@ const user = ref(null);
 const comments = ref([]);
 const commentText = ref("");
 
-// Fetch vacancy by ID
+// Modal state
+const showApplicationModal = ref(false);
+
+// Application form data
+const coverLetter = ref("");
+const cvFile = ref(null);
+
+// Auth info
+const isLoggedIn = !!localStorage.getItem("token");
+const role = localStorage.getItem("role");
+
+// Fetch vacancy
 const fetchVacancy = async () => {
   try {
     const res = await api.get(`/vacancies/${route.params.id}`);
@@ -21,12 +32,14 @@ const fetchVacancy = async () => {
   }
 };
 
-// Fetch authenticated user
+// Fetch current user
 const fetchUser = async () => {
   try {
-    const res = await api.get("/user");
+    const res = await api.get("/user", {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    });
     user.value = res.data;
-  } catch (err) {
+  } catch {
     user.value = null;
   }
 };
@@ -35,16 +48,18 @@ const fetchUser = async () => {
 const deleteVacancy = async () => {
   if (!confirm("Do you really want to delete this vacancy?")) return;
   try {
-    await api.delete(`/vacancies/${vacancy.value.id}`);
+    await api.delete(`/vacancies/${vacancy.value.id}`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    });
     alert("Vacancy deleted successfully");
-    router.push("/vakances"); // redirect after deletion
+    router.push("/vakances");
   } catch (err) {
-    console.error("Failed to delete vacancy:", err);
+    console.error(err);
     alert(err.response?.data?.message || "Deletion failed");
   }
 };
 
-// Add comment (local only for now)
+// Comments
 const addComment = () => {
   if (!commentText.value.trim()) return;
   comments.value.push({
@@ -55,23 +70,54 @@ const addComment = () => {
   commentText.value = "";
 };
 
+// Handle file upload
+const handleFile = (e) => {
+  cvFile.value = e.target.files[0];
+};
+
+// Submit application
+const submitApplication = async () => {
+  if (!coverLetter.value && !cvFile.value) {
+    alert("Please add a cover letter or attach your CV.");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("cover_letter", coverLetter.value);
+  if (cvFile.value) formData.append("cv", cvFile.value);
+
+  try {
+    await api.post(`/vacancies/${vacancy.value.id}/apply`, formData, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    alert("Application submitted!");
+    coverLetter.value = "";
+    cvFile.value = null;
+    showApplicationModal.value = false;
+  } catch (err) {
+    console.error(err);
+    alert(err.response?.data?.message || "Failed to submit application");
+  }
+};
+
 onMounted(() => {
   fetchVacancy();
-  fetchUser();
+  if (isLoggedIn) fetchUser();
 });
 </script>
 
 <template>
   <div v-if="vacancy" class="max-w-3xl mx-auto p-6 space-y-6 bg-white rounded-2xl shadow-lg">
-    
+
     <!-- Vacancy Header -->
     <div class="flex justify-between items-start">
       <div>
         <h1 class="text-4xl font-bold text-gray-800">{{ vacancy.title }}</h1>
         <p class="text-gray-500 mt-1">{{ vacancy.company }}</p>
       </div>
-
-      <!-- Delete Button -->
       <button
         v-if="user && vacancy.user_id === user.id"
         @click="deleteVacancy"
@@ -95,12 +141,21 @@ onMounted(() => {
     <p class="mt-4 text-gray-700 leading-relaxed">{{ vacancy.description }}</p>
     <p class="mt-3 font-semibold text-indigo-600 text-lg">Salary: {{ vacancy.salary }}</p>
 
+    <!-- Apply Button -->
+    <div v-if="isLoggedIn && role !== 'uzņēmējs'" class="mt-6">
+      <button
+        @click="showApplicationModal = true"
+        class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+      >
+        Apply Now
+      </button>
+    </div>
+
     <!-- Comments Section -->
     <div class="mt-8">
       <h2 class="text-2xl font-semibold mb-4">Comments</h2>
 
-      <!-- Comment Form -->
-      <div class="mb-6">
+      <div v-if="isLoggedIn" class="mb-6">
         <textarea
           v-model="commentText"
           placeholder="Write a comment..."
@@ -114,7 +169,6 @@ onMounted(() => {
         </button>
       </div>
 
-      <!-- Comment List -->
       <div class="space-y-4">
         <div
           v-for="(comment, index) in comments"
@@ -131,12 +185,33 @@ onMounted(() => {
     </div>
   </div>
 
+  <!-- Loading -->
   <div v-else class="text-center text-gray-500 mt-10">Loading...</div>
+
+  <!-- Modal -->
+  <div
+    v-if="showApplicationModal"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+  >
+    <div class="bg-white rounded-2xl p-6 w-full max-w-lg relative">
+      <button @click="showApplicationModal = false" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800">&times;</button>
+      <h2 class="text-2xl font-semibold mb-4">Apply for {{ vacancy.title }}</h2>
+      <textarea
+        v-model="coverLetter"
+        placeholder="Write your cover letter..."
+        class="w-full border rounded-lg p-2 mb-2 focus:ring-indigo-500 focus:border-indigo-500"
+      ></textarea>
+      <input type="file" @change="handleFile" accept="application/pdf" class="mb-2" />
+      <button
+        @click="submitApplication"
+        class="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+      >
+        Submit Application
+      </button>
+    </div>
+  </div>
 </template>
 
 <style scoped>
-textarea {
-  resize: vertical;
-  min-height: 80px;
-}
+textarea { resize: vertical; min-height: 80px; }
 </style>

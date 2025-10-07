@@ -42,6 +42,7 @@ const register = async () => {
   });
 
     localStorage.setItem("token", response.data.token);
+        localStorage.setItem("role", response.data.user.role);
     window.location.href = "/profile";
 
   } catch (err: any) {

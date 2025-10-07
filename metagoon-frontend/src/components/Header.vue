@@ -1,9 +1,9 @@
+```vue
 <template>
-  <!-- Sticky header with glass + gradient accent -->
   <header
+    v-if="!hideHeader"
     class="sticky top-0 z-40 w-full border-b border-black/10 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:bg-gray-900/70 dark:border-white/10"
   >
-    <!-- Gradient accent line -->
     <div class="h-0.5 w-full bg-gradient-to-r from-indigo-500 via-fuchsia-500 to-cyan-400"></div>
 
     <div class="mx-auto max-w-7xl px-4 sm:px-6">
@@ -12,7 +12,6 @@
         <RouterLink to="/" class="flex items-center gap-2 group">
           <span
             class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-black text-white shadow-sm group-hover:scale-105 transition"
-            aria-hidden="true"
           >
             <svg viewBox="0 0 24 24" class="h-5 w-5" fill="currentColor">
               <path
@@ -34,15 +33,20 @@
           <NavLink to="/" label="Sākums" />
           <NavLink to="/vakances" label="Vakances" />
           <NavLink to="/favoriti" label="Favorīti" />
+          <!-- ✅ Only visible for employers -->
+          <NavLink
+            v-if="isLoggedIn && userRole === 'uzņēmējs'"
+            to="/applications"
+            label="Pieteikumi"
+          />
         </nav>
 
-        <!-- Auth buttons -->
+        <!-- Auth Buttons -->
         <div class="flex items-center gap-3">
-          <!-- If logged in, show Profile + Logout -->
           <template v-if="isLoggedIn">
             <RouterLink
               to="/profile"
-              class="rounded-xl border border-gray-300 px-4 py-2 text-sm font-semibold hover:bg-gray-100 active:scale-[.99] transition dark:border-gray-700 dark:hover:bg-gray-800"
+              class="rounded-xl border border-gray-300 px-4 py-2 text-sm font-semibold hover:bg-gray-100 dark:border-gray-700 dark:hover:bg-gray-800 transition"
             >
               Profils
             </RouterLink>
@@ -54,17 +58,16 @@
             </button>
           </template>
 
-          <!-- If logged out, show Login + Register -->
           <template v-else>
             <RouterLink
               to="/login"
-              class="rounded-xl border border-gray-300 px-4 py-2 text-sm font-semibold hover:bg-gray-100 active:scale-[.99] transition dark:border-gray-700 dark:hover:bg-gray-800"
+              class="rounded-xl border border-gray-300 px-4 py-2 text-sm font-semibold hover:bg-gray-100 dark:border-gray-700 dark:hover:bg-gray-800 transition"
             >
               Pieslēgties
             </RouterLink>
             <RouterLink
               to="/registracija"
-              class="rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white shadow hover:bg-gray-800 active:scale-[.99] transition dark:bg-white dark:text-black dark:hover:bg-gray-100"
+              class="rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white shadow hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-100 transition"
             >
               Reģistrēties
             </RouterLink>
@@ -75,38 +78,37 @@
   </header>
 </template>
 
-<script setup lang="ts">
-import { RouterLink, useRoute } from 'vue-router'
-import { computed, defineComponent, h, ref, onMounted } from 'vue'
+<script setup>
+import { RouterLink, useRoute } from "vue-router";
+import { ref, computed, onMounted, defineComponent, h } from "vue";
 
-/** Track login state based on token in localStorage */
-const isLoggedIn = ref(false)
+const route = useRoute();
+const hideHeader = computed(() => route.meta.hideHeader);
+
+const isLoggedIn = ref(false);
+const userRole = ref(null);
 
 onMounted(() => {
-  isLoggedIn.value = !!localStorage.getItem('token')
-})
+  isLoggedIn.value = !!localStorage.getItem("token");
+  userRole.value = localStorage.getItem("role");
+});
 
 const logout = () => {
-  localStorage.removeItem('token')
-  isLoggedIn.value = false
-  window.location.href = '/' // redirect to home
-}
+  localStorage.removeItem("token");
+  localStorage.removeItem("role");
+  isLoggedIn.value = false;
+  window.location.href = "/";
+};
 
-type NavLinkProps = {
-  to: string
-  label: string
-}
-
-/** Desktop NavLink ar tipētiem prop'iem un aktīvo underline */
 const NavLink = defineComponent({
-  name: 'NavLink',
+  name: "NavLink",
   props: {
     to: { type: String, required: true },
-    label: { type: String, required: true }
+    label: { type: String, required: true },
   },
-  setup(props: NavLinkProps) {
-    const route = useRoute()
-    const active = computed<boolean>(() => route.path === props.to)
+  setup(props) {
+    const route = useRoute();
+    const active = computed(() => route.path === props.to);
 
     return () =>
       h(
@@ -114,24 +116,25 @@ const NavLink = defineComponent({
         {
           to: props.to,
           class: [
-            'relative px-2 py-1 text-[15px] transition',
+            "relative px-2 py-1 text-[15px] transition",
             active.value
-              ? 'text-black dark:text-white'
-              : 'text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400'
-          ]
+              ? "text-black dark:text-white"
+              : "text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400",
+          ],
         },
         {
           default: () => [
-            h('span', { class: 'inline-block' }, props.label),
-            h('span', {
+            h("span", { class: "inline-block" }, props.label),
+            h("span", {
               class: [
-                'absolute left-0 -bottom-1 h-0.5 w-full rounded-full transition-all',
-                active.value ? 'bg-blue-600 scale-100' : 'bg-transparent scale-0'
-              ]
-            })
-          ]
+                "absolute left-0 -bottom-1 h-0.5 w-full rounded-full transition-all",
+                active.value ? "bg-blue-600 scale-100" : "bg-transparent scale-0",
+              ],
+            }),
+          ],
         }
-      )
-  }
-})
+      );
+  },
+});
 </script>
+
