@@ -50,7 +50,8 @@ class JobVacanciesController extends Controller
     ]);
 
     $validated['user_id'] = $authUser->id;
-    $validated['company'] = $authUser->company ?? ($request->input('company') ?? 'Nezināms uzņēmums');
+    $validated['company'] = $authUser->company_name
+        ?? ($request->input('company') ?? 'Nezināms uzņēmums');
 
     $vacancy = JobVacancy::create($validated);
 

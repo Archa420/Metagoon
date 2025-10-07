@@ -23,6 +23,7 @@ onMounted(async () => {
       <p><strong>Statuss:</strong> {{ user.role }}</p>
       <p v-if="user.role === 'uzņēmējs'">
         <strong>Uzņēmuma reģ. nr:</strong> {{ user.company_number }} <br>
+        <strong>Uzņēmuma nosaukums:</strong> {{ user.company_name }} <br>
         <strong>Juridiskā adrese:</strong> {{ user.company_address }}
       </p>
     </div>

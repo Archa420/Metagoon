@@ -18,6 +18,7 @@ class User extends Authenticatable
         'gender',
         'age',
         'role',
+        'company_name',
         'company_number',
         'company_address',
     ];

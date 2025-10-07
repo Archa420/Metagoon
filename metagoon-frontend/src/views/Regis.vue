@@ -11,6 +11,7 @@ const age = ref<number | null>(null);
 const role = ref("");  
 const company_number = ref("");
 const company_address = ref("");
+const company_name = ref("");
 
 const register = async () => {
   try {
@@ -22,21 +23,23 @@ const register = async () => {
       gender: gender.value,
       age: age.value,
       role: role.value,
+      company_name: role.value === "uzņēmējs" ? company_name.value : null,
       company_number: role.value === "uzņēmējs" ? company_number.value : null,
       company_address: role.value === "uzņēmējs" ? company_address.value : null,
     });
 
     const response = await api.post("/register", {
-      firstname: firstname.value,
-      lastname: lastname.value,
-      username: username.value,
-      password: password.value,
-      gender: gender.value,
-      age: age.value,
-      role: role.value,
-      company_number: role.value === "uzņēmējs" ? company_number.value : null,
-      company_address: role.value === "uzņēmējs" ? company_address.value : null,
-    });
+    firstname: firstname.value,
+    lastname: lastname.value,
+    username: username.value,
+    password: password.value,
+    gender: gender.value,
+    age: age.value,
+    role: role.value,
+    company_name: role.value === "uzņēmējs" ? company_name.value : null, // 👈 ADD
+    company_number: role.value === "uzņēmējs" ? company_number.value : null,
+    company_address: role.value === "uzņēmējs" ? company_address.value : null,
+  });
 
     localStorage.setItem("token", response.data.token);
     window.location.href = "/profile";
@@ -117,6 +120,15 @@ const register = async () => {
 
         <!-- Entrepreneur fields -->
         <div v-if="role === 'uzņēmējs'">
+          <label for="company_name" class="block text-sm font-medium text-gray-700">Uzņēmuma nosaukums</label>
+        <input
+          id="company_name"
+          type="text"
+          placeholder="Ievadi uzņēmuma nosaukumu"
+          v-model="company_name"
+          class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+        />
+
           <label for="company_number" class="block text-sm font-medium text-gray-700">Uzņēmuma reģistrācijas numurs</label>
           <input id="company_number" type="text" placeholder="Ievadi uzņēmuma reģ. numuru" v-model="company_number" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
           
