@@ -15,17 +15,6 @@ const newVacancy = ref({
 const logoPreview = ref(null);
 const error = ref(null);
 
-const deleteVacancy = async (id) => {
-  if (!confirm("Do you really want to delete this vacancy?")) return;
-
-  try {
-    await api.delete(`/vacancies/${id}`);
-    jobs.value = jobs.value.filter((job) => job.id !== id);
-  } catch (err) {
-    console.error("Failed to delete vacancy:", err);
-    alert(err.response?.data?.message || "Deletion failed");
-  }
-};
 // Fetch all vacancies
 const fetchJobs = async () => {
   try {
