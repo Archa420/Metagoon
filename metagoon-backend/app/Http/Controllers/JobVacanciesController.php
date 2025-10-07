@@ -7,6 +7,29 @@ use Illuminate\Http\Request;
 
 class JobVacanciesController extends Controller
 {
+        public function destroy(Request $request, $id)
+{
+    $user = $request->user();
+
+    $vacancy = JobVacancy::find($id);
+    if (!$vacancy) {
+        return response()->json(['message' => 'Vacancy not found'], 404);
+    }
+
+    // Only the employer who created it can delete
+    if ($vacancy->user_id !== $user->id) {
+        return response()->json(['message' => 'Unauthorized'], 403);
+    }
+
+    // Delete logo file if exists
+    if ($vacancy->logo && \Storage::disk('public')->exists($vacancy->logo)) {
+        \Storage::disk('public')->delete($vacancy->logo);
+    }
+
+    $vacancy->delete();
+
+    return response()->json(['message' => 'Vacancy deleted successfully']);
+}
     // List vacancies
     public function index()
     {

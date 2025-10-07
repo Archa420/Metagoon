@@ -15,6 +15,17 @@ const newVacancy = ref({
 const logoPreview = ref(null);
 const error = ref(null);
 
+const deleteVacancy = async (id) => {
+  if (!confirm("Do you really want to delete this vacancy?")) return;
+
+  try {
+    await api.delete(`/vacancies/${id}`);
+    jobs.value = jobs.value.filter((job) => job.id !== id);
+  } catch (err) {
+    console.error("Failed to delete vacancy:", err);
+    alert(err.response?.data?.message || "Deletion failed");
+  }
+};
 // Fetch all vacancies
 const fetchJobs = async () => {
   try {
@@ -113,8 +124,14 @@ onMounted(() => {
 
     <!-- Vacancy list -->
     <div class="space-y-4">
-      <JobCard v-for="job in jobs" :key="job.id" v-bind="job" />
-    </div>
+  <JobCard
+    v-for="job in jobs"
+    :key="job.id"
+    v-bind="job"
+    :currentUserId="user?.id"
+    :role="user?.role"
+  />
+</div>
   </div>
 
   <!-- Create Vacancy Modal (for employers only) -->
