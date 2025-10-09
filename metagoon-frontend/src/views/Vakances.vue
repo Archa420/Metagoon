@@ -1,5 +1,6 @@
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { ref, computed, onMounted, watch } from "vue";
 import api from "@/services/api";
 import JobCard from "@/components/JobCard.vue";
 
@@ -8,6 +9,10 @@ const user = ref(null);
 const showModal = ref(false);
 const logoPreview = ref(null);
 const error = ref(null);
+const route = useRoute();
+const router = useRouter();
+
+
 
 const newVacancy = ref({
   title: "",
@@ -22,6 +27,22 @@ const newVacancy = ref({
 const selectedCategory = ref("");
 const selectedCounty = ref("");
 const searchQuery = ref("");
+
+
+if (route.query.category && typeof route.query.category === "string") {
+  selectedCategory.value = route.query.category;
+}
+
+watch(
+  () => route.query.category,
+  (newCategory) => {
+    if (newCategory && typeof newCategory === "string") {
+      selectedCategory.value = newCategory;
+    } else {
+      selectedCategory.value = "";
+    }
+  }
+);
 
 // Filtrētas vakances
 const filteredJobs = computed(() => {
