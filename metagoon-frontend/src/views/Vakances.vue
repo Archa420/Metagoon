@@ -72,11 +72,12 @@ const createVacancy = async () => {
       title: newVacancy.value.title,
       salary: newVacancy.value.salary,
       description: newVacancy.value.description,
+      category: newVacancy.value.category || "",
       logo: logoPath,
     });
 
     // Reset form
-    newVacancy.value = { title: "", salary: "", description: "", logo: null };
+    newVacancy.value = { title: "", salary: "", description: "", category: "", logo: null };
     logoPreview.value = null;
     showModal.value = false;
     fetchJobs();
@@ -132,16 +133,59 @@ onMounted(() => {
       <h2 class="text-2xl font-bold mb-4">Create Vacancy</h2>
 
       <form @submit.prevent="createVacancy" class="space-y-4">
-        <input type="text" v-model="newVacancy.title" placeholder="Title" required class="w-full p-2 border rounded" />
-        <input type="text" v-model="newVacancy.salary" placeholder="Salary" required class="w-full p-2 border rounded" />
-        <textarea v-model="newVacancy.description" placeholder="Description" required class="w-full p-2 border rounded"></textarea>
+        <input
+          type="text"
+          v-model="newVacancy.title"
+          placeholder="Title"
+          required
+          class="w-full p-2 border rounded"
+        />
+
+        <input
+          type="text"
+          v-model="newVacancy.salary"
+          placeholder="Salary"
+          required
+          class="w-full p-2 border rounded"
+        />
+        <p>Izvēlies kategoriju:</p>
+        <!-- Jaunā kategoriju izvēlne -->
+        <select
+          v-model="newVacancy.category"
+          required
+          class="w-full p-2 border rounded bg-white"
+        >
+          <option value="" disabled selected>Izvēlies kategoriju</option>
+          <option value="IT & Programmēšana">IT & Programmēšana</option>
+          <option value="Pārdošana">Pārdošana</option>
+          <option value="Mārketings">Mārketings</option>
+          <option value="Finanses">Finanses</option>
+          <option value="Loģistika">Loģistika</option>
+          <option value="Ražošana">Ražošana</option>
+          <option value="Klientu atbalsts">Klientu atbalsts</option>
+          <option value="Veselība">Veselība</option>
+        </select>
+
+        <textarea
+          v-model="newVacancy.description"
+          placeholder="Description"
+          required
+          class="w-full p-2 border rounded"
+        ></textarea>
 
         <div>
           <input type="file" accept="image/*" @change="handleFileChange" />
-          <img v-if="logoPreview" :src="logoPreview" class="mt-2 w-32 h-32 object-contain border rounded" />
+          <img
+            v-if="logoPreview"
+            :src="logoPreview"
+            class="mt-2 w-32 h-32 object-contain border rounded"
+          />
         </div>
 
-        <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700">
+        <button
+          type="submit"
+          class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700"
+        >
           Save Vacancy
         </button>
 

@@ -114,7 +114,6 @@ const register = async () => {
           <select id="role" v-model="role" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 bg-white text-gray-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
             <option value="">Izvēlies statusu</option>
             <option value="bezdarbnieks">Bezdarbnieks</option>
-            <option value="darbinieks">Darbinieks</option>
             <option value="uzņēmējs">Uzņēmējs</option>
           </select>
         </div>

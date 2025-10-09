@@ -44,6 +44,7 @@ class JobVacanciesController extends Controller
             'title'       => 'required|string|max:255',
             'salary'      => 'required|string|max:255',
             'description' => 'required|string',
+            'category'    => 'required|string|max:100',
             'logo'        => 'nullable|string|max:255',
         ]);
 

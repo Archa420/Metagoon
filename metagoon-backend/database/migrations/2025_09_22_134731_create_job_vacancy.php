@@ -15,6 +15,7 @@ return new class extends Migration
             $table->string('company');
             $table->string('salary');
             $table->text('description');
+            $table->text('category');
             $table->string('logo')->nullable();
             $table->timestamps();
         });

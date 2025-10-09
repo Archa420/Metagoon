@@ -16,6 +16,7 @@ class JobVacancy extends Model
         'salary',
         'description',
         'logo',
+        'category',
     ];
 
     public function user()
