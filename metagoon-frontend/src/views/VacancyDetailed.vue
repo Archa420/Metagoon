@@ -117,6 +117,7 @@ onMounted(() => {
       <div>
         <h1 class="text-4xl font-bold text-gray-800">{{ vacancy.title }}</h1>
         <p class="text-gray-500 mt-1">{{ vacancy.company }}</p>
+         <p class="mt-1 text-gray-500">Location: {{ vacancy.county }}</p>
       </div>
       <button
         v-if="user && vacancy.user_id === user.id"
@@ -140,7 +141,7 @@ onMounted(() => {
     <!-- Description & Salary -->
     <p class="mt-4 text-gray-700 leading-relaxed">{{ vacancy.description }}</p>
     <p class="mt-3 font-semibold text-indigo-600 text-lg">Salary: {{ vacancy.salary }}</p>
-
+       
     <!-- Apply Button -->
     <div v-if="isLoggedIn && role !== 'uzņēmējs'" class="mt-6">
       <button

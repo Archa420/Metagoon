@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('salary');
             $table->text('description');
             $table->text('category');
+             $table->text('county');
             $table->string('logo')->nullable();
             $table->timestamps();
         });
