@@ -142,7 +142,7 @@ onMounted(() => {
   <div class="max-w-5xl mx-auto p-6 space-y-8">
     <!-- Header -->
     <div class="flex items-center justify-between flex-wrap gap-4">
-      <h1 class="text-3xl font-bold text-gray-900">Vakances</h1>
+      <h1 class="text-3xl font-bold text-gray-100">Vakances</h1>
 
       <!-- Create button for employers -->
       <button
@@ -156,18 +156,18 @@ onMounted(() => {
 
     <!-- FILTRĒŠANA -->
     <div
-      class="flex flex-col md:flex-row items-center gap-4 bg-white border border-gray-200 shadow-sm p-4 rounded-2xl"
+      class="flex flex-col md:flex-row items-center gap-4 bg-gray-900/60 border border-gray-700 shadow-sm p-4 rounded-2xl"
     >
       <input
         type="text"
         v-model="searchQuery"
         placeholder="🔍 Meklē pēc amata nosaukuma..."
-        class="flex-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+        class="flex-1 p-2 border border-gray-700 rounded-lg bg-gray-800/60 text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
       />
 
       <select
         v-model="selectedCategory"
-        class="flex-1 p-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-indigo-500"
+        class="flex-1 p-2 border border-gray-700 rounded-lg bg-gray-800/60 text-gray-100 focus:ring-2 focus:ring-indigo-500"
       >
         <option value="">Visas kategorijas</option>
         <option value="IT & Programmēšana">IT & Programmēšana</option>
@@ -182,7 +182,7 @@ onMounted(() => {
 
       <select
         v-model="selectedCounty"
-        class="flex-1 p-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-indigo-500"
+        class="flex-1 p-2 border border-gray-700 rounded-lg bg-gray-800/60 text-gray-100 focus:ring-2 focus:ring-indigo-500"
       >
         <option value="">Visi novadi / pilsētas</option>
         <option value="Daugavpils">Daugavpils</option>
@@ -199,7 +199,7 @@ onMounted(() => {
 
       <button
         @click="selectedCategory = ''; selectedCounty = ''; searchQuery = ''"
-        class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition"
+        class="bg-gray-800/40 text-gray-300 px-4 py-2 rounded-lg hover:bg-gray-700/40 transition"
       >
         Notīrīt
       </button>
@@ -215,7 +215,7 @@ onMounted(() => {
         :role="user?.role"
       />
     </div>
-    <div v-else class="text-gray-500 text-center py-10">
+    <div v-else class="text-gray-400 text-center py-10">
       Nav atrasta neviena vakance pēc izvēlētajiem filtriem.
     </div>
   </div>
@@ -223,10 +223,10 @@ onMounted(() => {
   <!-- CREATE VACANCY MODAL -->
   <div
     v-if="showModal"
-    class="fixed inset-0 bg-gray-700 bg-opacity-50 flex items-center justify-center p-4 z-50"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
   >
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6">
-      <h2 class="text-2xl font-bold mb-4 text-gray-900">
+    <div class="bg-gray-900 rounded-2xl shadow-2xl w-full max-w-lg p-6 text-gray-100 border border-gray-700">
+      <h2 class="text-2xl font-bold mb-4 text-gray-100">
         Izveidot jaunu vakanci
       </h2>
 
@@ -236,7 +236,7 @@ onMounted(() => {
           v-model="newVacancy.title"
           placeholder="Nosaukums"
           required
-          class="w-full p-2 border rounded-lg"
+          class="w-full p-2 border border-gray-700 rounded-lg bg-gray-800/60 text-gray-100"
         />
 
         <input
@@ -244,13 +244,13 @@ onMounted(() => {
           v-model="newVacancy.salary"
           placeholder="Alga"
           required
-          class="w-full p-2 border rounded-lg"
+          class="w-full p-2 border border-gray-700 rounded-lg bg-gray-800/60 text-gray-100"
         />
 
         <select
           v-model="newVacancy.category"
           required
-          class="w-full p-2 border rounded-lg bg-white"
+          class="w-full p-2 border border-gray-700 rounded-lg bg-gray-800/60 text-gray-100"
         >
           <option value="" disabled selected>Izvēlies kategoriju</option>
           <option value="IT & Programmēšana">IT & Programmēšana</option>
@@ -266,7 +266,7 @@ onMounted(() => {
         <select
           v-model="newVacancy.county"
           required
-          class="w-full p-2 border rounded-lg bg-white"
+          class="w-full p-2 border border-gray-700 rounded-lg bg-gray-800/60 text-gray-100"
         >
           <option value="" disabled selected>Izvēlies novadu / pilsētu</option>
           <option value="Daugavpils">Daugavpils</option>
@@ -285,7 +285,7 @@ onMounted(() => {
           v-model="newVacancy.description"
           placeholder="Apraksts"
           required
-          class="w-full p-2 border rounded-lg"
+          class="w-full p-2 border border-gray-700 rounded-lg bg-gray-800/60 text-gray-100"
         ></textarea>
 
         <div>
@@ -293,7 +293,7 @@ onMounted(() => {
           <img
             v-if="logoPreview"
             :src="logoPreview"
-            class="mt-2 w-32 h-32 object-contain border rounded-lg"
+            class="mt-2 w-32 h-32 object-contain border border-gray-700 rounded-lg"
           />
         </div>
 
@@ -309,7 +309,7 @@ onMounted(() => {
 
       <button
         @click="showModal = false"
-        class="mt-4 px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
+        class="mt-4 px-4 py-2 bg-gray-800/50 text-gray-100 rounded-lg hover:bg-gray-700/40"
       >
         Aizvērt
       </button>
