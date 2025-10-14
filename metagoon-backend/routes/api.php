@@ -25,6 +25,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/vacancies/{id}', [JobVacanciesController::class, 'destroy']);
     Route::post('/vacancies/{id}/apply', [JobApplicationsController::class, 'apply']);
     Route::get('/applications', [JobApplicationsController::class, 'employerApplications']);
+    Route::get('/applications/{id}/cv/view', [JobApplicationsController::class, 'viewCv']);
+    Route::middleware('auth:sanctum')->get('/applications/{id}/cv-link', [JobApplicationsController::class, 'getCvLink']);
+
     // File upload
     Route::post('/upload', [JobVacanciesController::class, 'upload']);
 });
