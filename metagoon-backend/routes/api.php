@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\JobVacanciesController;
 use App\Http\Controllers\JobApplicationsController;
+use App\Http\Controllers\JobComments;
 
 // Auth routes
 Route::post('/register', [AuthController::class, 'register']);
@@ -27,7 +28,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/applications', [JobApplicationsController::class, 'employerApplications']);
     Route::get('/applications/{id}/cv/view', [JobApplicationsController::class, 'viewCv']);
     Route::middleware('auth:sanctum')->get('/applications/{id}/cv-link', [JobApplicationsController::class, 'getCvLink']);
-
+    Route::post('/comments', [JobComments::class, 'store']);
+    Route::get('/vacancies/{id}/comments', [JobComments::class, 'index']);
     // File upload
     Route::post('/upload', [JobVacanciesController::class, 'upload']);
 });
