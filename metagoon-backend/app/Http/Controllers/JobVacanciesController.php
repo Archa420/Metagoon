@@ -66,7 +66,7 @@ class JobVacanciesController extends Controller
 
         if (!$vacancy) return response()->json(['message' => 'Vacancy not found'], 404);
 
-        if ($vacancy->user_id !== $user->id) {
+        if ($vacancy->user_id !== $user->id && $user->role !== 'admin') {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 

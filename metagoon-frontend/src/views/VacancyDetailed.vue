@@ -149,7 +149,7 @@ onMounted(async () => {
       </div>
 
       <button
-        v-if="user && vacancy.user_id === user.id"
+        v-if="user && vacancy.user_id === user.id || role === 'admin'"
         @click="deleteVacancy"
         class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
       >
