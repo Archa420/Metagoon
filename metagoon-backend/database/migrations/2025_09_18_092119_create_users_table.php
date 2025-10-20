@@ -14,7 +14,7 @@ return new class extends Migration {
         $table->string('password');
         $table->string('gender')->nullable();
         $table->integer('age')->nullable();
-        $table->enum('role', ['bezdarbnieks', 'darbinieks', 'uzņēmējs']);
+        $table->enum('role', ['bezdarbnieks',  'uzņēmējs', 'admin'])->default('bezdarbnieks');
         $table->string('company_name')->nullable(); // 👈 NEW
         $table->string('company_number')->nullable();
         $table->string('company_address')->nullable();

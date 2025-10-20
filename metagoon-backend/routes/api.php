@@ -14,6 +14,9 @@ Route::post('/login', [AuthController::class, 'login']);
 // Public vacancies
 Route::get('/vacancies', [JobVacanciesController::class, 'index']);
 Route::get('/vacancies/{id}', [JobVacanciesController::class, 'show']); // single vacancy
+Route::middleware(['auth:sanctum', 'admin'])->group(function () {
+    Route::get('/admin/dashboard', [AdminController::class, 'dashboard']);
+});
 
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {

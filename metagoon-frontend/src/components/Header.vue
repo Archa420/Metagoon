@@ -39,6 +39,11 @@
             to="/applications"
             label="Pieteikumi"
           />
+          <NavLink
+            v-if="isLoggedIn && userRole === 'admin'"
+            to="/admin"
+            label="Admin Panel"
+          />
         </nav>
 
         <!-- Auth Buttons -->
