@@ -10,16 +10,16 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // 👑 Built-in Admin Account
         User::updateOrCreate(
             ['username' => 'admin'],
             [
                 'firstname' => 'Admin',
                 'lastname' => 'User',
+                'email' => 'admin@metagoon.com',
                 'password' => Hash::make('admin123'),
                 'role' => 'admin',
-                'gender' => null,
-                'age' => null,
+                'gender' => 'vīrietis',
+                'birth_date' => '1990-01-01',
                 'company_name' => null,
                 'company_number' => null,
                 'company_address' => null,

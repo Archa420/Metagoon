@@ -7,16 +7,23 @@ use App\Http\Controllers\JobVacanciesController;
 use App\Http\Controllers\JobApplicationsController;
 use App\Http\Controllers\JobComments;
 use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\UserController;
 
 // Auth routes
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::get('/stats', [\App\Http\Controllers\StatsController::class, 'index']);
 
 // Public vacancies
 Route::get('/vacancies', [JobVacanciesController::class, 'index']);
 Route::get('/vacancies/{id}', [JobVacanciesController::class, 'show']); // single vacancy
 Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard']);
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/profile', [UserController::class, 'profile']);
+    Route::put('/profile', [UserController::class, 'updateProfile']);
 });
 
 // Protected routes

@@ -112,10 +112,15 @@
           </select>
           <select v-model="newVacancy.county" required class="input-style">
             <option value="" disabled>Izvēlies novadu / pilsētu</option>
+            <option value="">Visi novadi / pilsētas</option>
             <option value="Rīga">Rīga</option>
             <option value="Liepāja">Liepāja</option>
             <option value="Jelgava">Jelgava</option>
             <option value="Daugavpils">Daugavpils</option>
+            <option value="Valmiera">Valmiera</option>
+            <option value="Ogre">Ogre</option>
+            <option value="Ventspils">Ventspils</option>
+            <option value="Rēzekne">Rēzekne</option>
           </select>
           <textarea v-model="newVacancy.description" placeholder="Apraksts" required class="input-style"></textarea>
 

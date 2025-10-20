@@ -26,25 +26,25 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label for="firstname" class="block text-sm font-medium text-gray-300 mb-1">Vārds</label>
-            <input
-              id="firstname"
-              type="text"
-              v-model="firstname"
-              placeholder="Ievadi savu vārdu"
-              class="input-style"
-            />
+            <input id="firstname" type="text" v-model="firstname" placeholder="Ievadi savu vārdu" class="input-style" />
           </div>
 
           <div>
             <label for="lastname" class="block text-sm font-medium text-gray-300 mb-1">Uzvārds</label>
-            <input
-              id="lastname"
-              type="text"
-              v-model="lastname"
-              placeholder="Ievadi savu uzvārdu"
-              class="input-style"
-            />
+            <input id="lastname" type="text" v-model="lastname" placeholder="Ievadi savu uzvārdu" class="input-style" />
           </div>
+        </div>
+
+        <!-- Email -->
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-300 mb-1">E-pasts</label>
+          <input
+            id="email"
+            type="email"
+            v-model="email"
+            placeholder="Ievadi savu e-pastu"
+            class="input-style"
+          />
         </div>
 
         <!-- Username -->
@@ -76,43 +76,27 @@
           <span class="block text-sm font-medium text-gray-300">Dzimums</span>
           <div class="mt-2 flex items-center flex-wrap gap-4 text-gray-300 text-sm">
             <label class="flex items-center">
-              <input
-                type="radio"
-                value="vīrietis"
-                v-model="gender"
-                class="h-4 w-4 text-indigo-600 border-gray-600 focus:ring-indigo-400"
-              />
+              <input type="radio" value="vīrietis" v-model="gender" class="h-4 w-4 text-indigo-600 border-gray-600 focus:ring-indigo-400" />
               <span class="ml-2">Vīrietis</span>
             </label>
             <label class="flex items-center">
-              <input
-                type="radio"
-                value="sieviete"
-                v-model="gender"
-                class="h-4 w-4 text-indigo-600 border-gray-600 focus:ring-indigo-400"
-              />
+              <input type="radio" value="sieviete" v-model="gender" class="h-4 w-4 text-indigo-600 border-gray-600 focus:ring-indigo-400" />
               <span class="ml-2">Sieviete</span>
             </label>
             <label class="flex items-center">
-              <input
-                type="radio"
-                value="cits"
-                v-model="gender"
-                class="h-4 w-4 text-indigo-600 border-gray-600 focus:ring-indigo-400"
-              />
+              <input type="radio" value="cits" v-model="gender" class="h-4 w-4 text-indigo-600 border-gray-600 focus:ring-indigo-400" />
               <span class="ml-2">Cits</span>
             </label>
           </div>
         </div>
 
-        <!-- Age -->
+        <!-- Birth Date -->
         <div>
-          <label for="age" class="block text-sm font-medium text-gray-300 mb-1">Vecums</label>
+          <label for="birth_date" class="block text-sm font-medium text-gray-300 mb-1">Dzimšanas datums</label>
           <input
-            id="age"
-            type="number"
-            v-model="age"
-            placeholder="Ievadi savu vecumu"
+            id="birth_date"
+            type="date"
+            v-model="birth_date"
             class="input-style"
           />
         </div>
@@ -120,11 +104,7 @@
         <!-- Role -->
         <div>
           <label for="role" class="block text-sm font-medium text-gray-300 mb-1">Statuss</label>
-          <select
-            id="role"
-            v-model="role"
-            class="input-style bg-gray-800/60 text-gray-100"
-          >
+          <select id="role" v-model="role" class="input-style bg-gray-800/60 text-gray-100">
             <option value="">Izvēlies statusu</option>
             <option value="bezdarbnieks">Bezdarbnieks</option>
             <option value="uzņēmējs">Uzņēmējs</option>
@@ -137,35 +117,17 @@
 
           <div>
             <label for="company_name" class="block text-sm font-medium text-gray-300 mb-1">Nosaukums</label>
-            <input
-              id="company_name"
-              type="text"
-              placeholder="Ievadi uzņēmuma nosaukumu"
-              v-model="company_name"
-              class="input-style"
-            />
+            <input id="company_name" type="text" placeholder="Ievadi uzņēmuma nosaukumu" v-model="company_name" class="input-style" />
           </div>
 
           <div>
             <label for="company_number" class="block text-sm font-medium text-gray-300 mb-1">Reģistrācijas numurs</label>
-            <input
-              id="company_number"
-              type="text"
-              placeholder="Ievadi uzņēmuma reģ. numuru"
-              v-model="company_number"
-              class="input-style"
-            />
+            <input id="company_number" type="text" placeholder="Ievadi uzņēmuma reģ. numuru" v-model="company_number" class="input-style" />
           </div>
 
           <div>
             <label for="company_address" class="block text-sm font-medium text-gray-300 mb-1">Juridiskā adrese</label>
-            <input
-              id="company_address"
-              type="text"
-              placeholder="Ievadi juridisko adresi"
-              v-model="company_address"
-              class="input-style"
-            />
+            <input id="company_address" type="text" placeholder="Ievadi juridisko adresi" v-model="company_address" class="input-style" />
           </div>
         </div>
 
@@ -197,10 +159,11 @@ import api from "../services/api.js";
 
 const firstname = ref("");
 const lastname = ref("");
+const email = ref("");
 const username = ref("");
 const password = ref("");
 const gender = ref("");
-const age = ref<number | null>(null);
+const birth_date = ref("");
 const role = ref("");
 const company_number = ref("");
 const company_address = ref("");
@@ -211,10 +174,11 @@ const register = async () => {
     const response = await api.post("/register", {
       firstname: firstname.value,
       lastname: lastname.value,
+      email: email.value,
       username: username.value,
       password: password.value,
       gender: gender.value,
-      age: age.value,
+      birth_date: birth_date.value,
       role: role.value,
       company_name: role.value === "uzņēmējs" ? company_name.value : null,
       company_number: role.value === "uzņēmējs" ? company_number.value : null,

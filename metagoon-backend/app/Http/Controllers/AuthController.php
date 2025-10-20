@@ -12,31 +12,32 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $validated = $request->validate([
-        'firstname' => 'required|string|max:50',
-        'lastname'  => 'required|string|max:50',
-        'username'  => 'required|string|max:50|unique:users',
-        'password'  => 'required|string|min:6',
-        'gender'    => 'nullable|string',
-        'age'       => 'nullable|integer|min:16',
-        'role'      => 'required|in:bezdarbnieks,darbinieks,uzņēmējs',
-        'company_name'    => 'nullable|required_if:role,uzņēmējs|string|max:255',
-        'company_number'  => 'nullable|required_if:role,uzņēmējs|string',
-        'company_address' => 'nullable|required_if:role,uzņēmējs|string',
-    ]);
+            'firstname' => 'required|string|max:50',
+            'lastname'  => 'required|string|max:50',
+            'email'     => 'required|email|max:255|unique:users,email',
+            'username'  => 'required|string|max:50|unique:users,username',
+            'password'  => 'required|string|min:6',
+            'gender'    => 'nullable|string',
+            'birth_date'=> 'nullable|date',
+            'role'      => 'required|in:bezdarbnieks,darbinieks,uzņēmējs,admin',
+            'company_name'    => 'nullable|required_if:role,uzņēmējs|string|max:255',
+            'company_number'  => 'nullable|required_if:role,uzņēmējs|string|max:255',
+            'company_address' => 'nullable|required_if:role,uzņēmējs|string|max:255',
+        ]);
 
-    $user = User::create([
-        'firstname' => $validated['firstname'],
-        'lastname'  => $validated['lastname'],
-        'username'  => $validated['username'],
-        'password'  => Hash::make($validated['password']),
-        'gender'    => $validated['gender'] ?? null,
-        'age'       => $validated['age'] ?? null,
-        'role'      => $validated['role'],
-        'company_name'    => $validated['company_name'] ?? null, // 👈 NEW
-        'company_number'  => $validated['company_number'] ?? null,
-        'company_address' => $validated['company_address'] ?? null,
-    ]);
-
+        $user = User::create([
+            'firstname'       => $validated['firstname'],
+            'lastname'        => $validated['lastname'],
+            'email'           => $validated['email'],
+            'username'        => $validated['username'],
+            'password'        => Hash::make($validated['password']),
+            'gender'          => $validated['gender'] ?? null,
+            'birth_date'      => $validated['birth_date'] ?? null,
+            'role'            => $validated['role'],
+            'company_name'    => $validated['company_name'] ?? null,
+            'company_number'  => $validated['company_number'] ?? null,
+            'company_address' => $validated['company_address'] ?? null,
+        ]);
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
@@ -50,7 +51,7 @@ class AuthController extends Controller
     {
         $request->validate([
             'username' => 'required',
-            'password' => 'required'
+            'password' => 'required',
         ]);
 
         $user = User::where('username', $request->username)->first();

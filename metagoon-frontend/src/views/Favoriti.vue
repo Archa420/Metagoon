@@ -1,29 +1,62 @@
 <template>
-  <div class="max-w-4xl mx-auto p-6 space-y-6">
-    <h1 class="text-3xl font-bold text-gray-800 mb-4">My Favorites</h1>
+  <div class="min-h-screen bg-[#0b0c10] text-gray-100 flex flex-col">
 
-    <div v-if="favorites.length > 0" class="space-y-4">
-      <div v-for="fav in favorites" :key="fav.id" class="flex items-start gap-4 p-6 bg-white rounded-2xl shadow-md">
-        <img
-          :src="fav.vacancy.logo ? 'http://127.0.0.1:8000/storage/' + fav.vacancy.logo : ''"
-          alt="Logo"
-          class="w-32 h-32 rounded-xl object-cover border"
+    <main class="flex-grow max-w-7xl mx-auto px-6 py-16 space-y-12">
+      <!-- Page Title -->
+      <section class="text-center space-y-2">
+        <h1
+          class="text-5xl font-extrabold bg-gradient-to-r from-indigo-400 via-fuchsia-400 to-cyan-400 bg-clip-text text-transparent"
+        >
+          Mani favorīti
+        </h1>
+        <p class="text-gray-400 text-lg max-w-2xl mx-auto">
+          Šeit ir redzamas vakances, kuras esi saglabājis sev interesējošās.
+        </p>
+      </section>
+
+      <!-- Favorites Grid -->
+      <section v-if="favorites.length > 0" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div v-for="fav in favorites" :key="fav.id" class="relative">
+          <JobCard
+          :id="fav.vacancy.id"
+          :logo="fav.vacancy.logo"
+          :title="fav.vacancy.title"
+          :company="fav.vacancy.company"
+          :description="fav.vacancy.description"
+          :salary="fav.vacancy.salary"
+          :category="fav.vacancy.category"
+          :county="fav.vacancy.county"
+          :isFavorite="true"
+          @remove="removeFavorite(fav.id)"
         />
-        <div class="flex flex-col">
-          <h2 class="text-xl font-semibold text-gray-800">{{ fav.vacancy.title }}</h2>
-          <p class="text-sm text-gray-500">{{ fav.vacancy.company }}</p>
-          <p class="mt-2 text-sm text-gray-700">{{ fav.vacancy.description }}</p>
-          <p class="mt-3 font-medium text-indigo-600">Salary: {{ fav.vacancy.salary }}</p>
         </div>
-      </div>
-    </div>
-    <div v-else class="text-gray-500">No favorites yet.</div>
+      </section>
+
+      <!-- Empty State -->
+      <section v-else class="text-center py-20 space-y-4">
+        <h2
+          class="text-3xl font-semibold text-gray-300 bg-gradient-to-r from-indigo-400 via-fuchsia-400 to-cyan-400 bg-clip-text text-transparent"
+        >
+          Nav nevienas saglabātas vakances
+        </h2>
+        <p class="text-gray-500 text-lg">
+          Pārlūko
+          <RouterLink to="/vakances" class="text-indigo-400 hover:text-indigo-300">
+            vakances
+          </RouterLink>
+          un pievieno tās favorītiem.
+        </p>
+      </section>
+    </main>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue";
+import { RouterLink } from "vue-router";
 import api from "@/services/api";
+import Header from "@/components/Header.vue";
+import JobCard from "@/components/JobCard.vue";
 
 const token = localStorage.getItem("token");
 const favorites = ref([]);
@@ -35,6 +68,17 @@ const fetchFavorites = async () => {
       headers: { Authorization: `Bearer ${token}` },
     });
     favorites.value = res.data;
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+const removeFavorite = async (id) => {
+  try {
+    await api.delete(`/favorites/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    favorites.value = favorites.value.filter((f) => f.id !== id);
   } catch (err) {
     console.error(err);
   }

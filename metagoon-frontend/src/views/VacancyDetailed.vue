@@ -1,4 +1,157 @@
+<template>
+  <div class="min-h-screen bg-[#0b0c10] text-gray-100 flex flex-col px-4">
+
+    <main class="max-w-4xl mx-auto w-full py-12 space-y-10">
+      <!-- Vacancy Card -->
+      <section
+        v-if="vacancy"
+        class="rounded-2xl border border-gray-800 bg-[#111318]/90 shadow-xl backdrop-blur-sm p-8 space-y-6"
+      >
+        <!-- Header Section -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+          <div class="space-y-1">
+            <h1 class="text-4xl font-bold text-white">{{ vacancy.title }}</h1>
+            <p class="text-gray-300">{{ vacancy.company }}</p>
+            <p class="text-gray-400 text-sm">Atrašanās vieta: {{ vacancy.county }}</p>
+          </div>
+
+          <div class="flex flex-wrap gap-3">
+            <button
+              @click="toggleFavorite"
+              class="px-5 py-2 rounded-lg border border-gray-700 text-sm text-gray-300 hover:bg-gray-800 transition"
+            >
+              {{ isFavorited ? "Noņemt no favorītiem" : "Pievienot favorītiem" }}
+            </button>
+
+            <button
+              v-if="user && vacancy.user_id === user.id || role === 'admin'"
+              @click="deleteVacancy"
+              class="px-5 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition"
+            >
+              Dzēst
+            </button>
+          </div>
+        </div>
+
+        <!-- Company Logo -->
+        <div v-if="vacancy.logo_url" class="mt-4">
+          <img
+            :src="vacancy.logo_url"
+            alt="Company Logo"
+            class="w-32 h-32 object-cover rounded-xl border border-gray-700"
+          />
+        </div>
+
+        <!-- Description -->
+        <div class="space-y-3 mt-4">
+          <p class="leading-relaxed text-gray-300">{{ vacancy.description }}</p>
+          <p class="font-semibold text-indigo-400 text-lg">
+            Alga: {{ vacancy.salary }} €
+          </p>
+        </div>
+
+        <!-- Apply Button -->
+        <div v-if="isLoggedIn && role !== 'uzņēmējs'" class="pt-6">
+          <button
+            @click="showApplicationModal = true"
+            class="px-6 py-2 rounded-xl bg-gradient-to-r from-indigo-600 via-fuchsia-500 to-cyan-500 text-white font-semibold shadow hover:opacity-90 transition"
+          >
+            Pieteikties
+          </button>
+        </div>
+      </section>
+
+      <!-- Comments -->
+      <section
+        v-if="vacancy"
+        class="rounded-2xl border border-gray-800 bg-[#111318]/90 shadow-md backdrop-blur-sm p-8 space-y-6"
+      >
+        <h2 class="text-2xl font-semibold text-white border-b border-gray-800 pb-3">
+          Komentāri
+        </h2>
+
+        <!-- Add Comment -->
+        <div v-if="isLoggedIn" class="space-y-3">
+          <textarea
+            v-model="newComment.comment_text"
+            placeholder="Raksti savu komentāru..."
+            class="w-full rounded-lg border border-gray-700 bg-gray-900/70 text-gray-100 p-3 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none resize-none"
+          ></textarea>
+          <button
+            @click="addComment"
+            class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition"
+          >
+            Publicēt
+          </button>
+        </div>
+
+        <!-- Comment List -->
+        <div v-if="comments.length > 0" class="space-y-4">
+          <div
+            v-for="(comment, index) in comments"
+            :key="index"
+            class="p-4 rounded-xl border border-gray-800 bg-gray-900/50"
+          >
+            <p class="text-gray-200">{{ comment.comment_text }}</p>
+            <p class="text-xs text-gray-500 mt-1">
+              {{ comment.user?.name || "Anonīms" }} • {{ formatDate(comment.created_at) }}
+            </p>
+          </div>
+        </div>
+
+        <p v-else class="text-sm text-gray-500">Vēl nav komentāru.</p>
+      </section>
+
+      <!-- Loading -->
+      <div v-else class="text-center text-gray-500 py-20">Ielādē vakanci...</div>
+    </main>
+
+    <!-- Application Modal -->
+    <div
+      v-if="showApplicationModal"
+      class="fixed inset-0 bg-black/60 flex items-center justify-center z-50"
+    >
+      <div
+        class="bg-[#111318] rounded-2xl border border-gray-800 shadow-2xl p-8 w-full max-w-lg relative"
+      >
+        <button
+          @click="showApplicationModal = false"
+          class="absolute top-3 right-4 text-gray-400 hover:text-gray-200 text-xl"
+        >
+          &times;
+        </button>
+
+        <h2 class="text-2xl font-semibold text-white mb-4">
+          Pieteikties vakancei:
+          <span class="text-indigo-400">{{ vacancy.title }}</span>
+        </h2>
+
+        <textarea
+          v-model="coverLetter"
+          placeholder="Raksti motivācijas vēstuli..."
+          class="w-full rounded-lg border border-gray-700 bg-gray-900/70 text-gray-100 p-3 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none mb-3"
+        ></textarea>
+
+        <input
+          type="file"
+          @change="handleFile"
+          accept="application/pdf"
+          class="text-sm text-gray-300 mb-4"
+        />
+
+        <button
+          @click="submitApplication"
+          class="w-full px-5 py-2.5 bg-gradient-to-r from-indigo-600 via-fuchsia-500 to-cyan-500 text-white rounded-lg text-sm font-semibold hover:opacity-90 transition"
+        >
+          Nosūtīt pieteikumu
+        </button>
+      </div>
+    </div>
+  </div>
+</template>
+
 <script setup>
+import Header from "@/components/Header.vue";
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import api from "@/services/api";
@@ -9,16 +162,10 @@ const isFavorited = ref(false);
 const vacancy = ref(null);
 const user = ref(null);
 const comments = ref([]);
-const newComment = ref({
-  comment_text: "",
-  vacancy_id: route.params.id,
-});
-
+const newComment = ref({ comment_text: "", vacancy_id: route.params.id });
 const showApplicationModal = ref(false);
-
 const coverLetter = ref("");
 const cvFile = ref(null);
-
 const token = localStorage.getItem("token");
 const isLoggedIn = !!token;
 const role = localStorage.getItem("role");
@@ -26,25 +173,20 @@ const role = localStorage.getItem("role");
 const fetchVacancy = async () => {
   try {
     const res = await api.get(`/vacancies/${route.params.id}`);
-    console.log("Vacancy response:", res.data);
     vacancy.value = res.data.data || res.data;
   } catch (err) {
     console.error("Failed to fetch vacancy:", err);
   }
 };
-
 const fetchUser = async () => {
   if (!token) return;
   try {
-    const res = await api.get("/user", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const res = await api.get("/user", { headers: { Authorization: `Bearer ${token}` } });
     user.value = res.data;
   } catch {
     user.value = null;
   }
 };
-
 const fetchComments = async () => {
   try {
     const res = await api.get(`/vacancies/${route.params.id}/comments`);
@@ -53,108 +195,65 @@ const fetchComments = async () => {
     console.error("Failed to load comments:", err);
   }
 };
-
 const deleteVacancy = async () => {
-  if (!confirm("Do you really want to delete this vacancy?")) return;
-
+  if (!confirm("Vai tiešām vēlies dzēst šo vakanci?")) return;
   try {
-    await api.delete(`/vacancies/${vacancy.value.id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    alert("Vacancy deleted successfully");
+    await api.delete(`/vacancies/${vacancy.value.id}`, { headers: { Authorization: `Bearer ${token}` } });
+    alert("Vakance dzēsta veiksmīgi");
     router.push("/vakances");
   } catch (err) {
     console.error(err);
-    alert(err.response?.data?.message || "Deletion failed");
+    alert(err.response?.data?.message || "Dzēšana neizdevās");
   }
 };
-
-
 const addComment = async () => {
-  if (!newComment.value.comment_text.trim()) {
-    alert("Please write a comment first.");
-    return;
-  }
-
+  if (!newComment.value.comment_text.trim()) return alert("Ieraksti komentāru!");
   try {
-    await api.post("/comments", newComment.value, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    await api.post("/comments", newComment.value, { headers: { Authorization: `Bearer ${token}` } });
     newComment.value.comment_text = "";
-    await fetchComments(); // refresh comments
+    await fetchComments();
   } catch (err) {
     console.error(err);
-    alert(err.response?.data?.message || "Failed to add comment");
+    alert(err.response?.data?.message || "Neizdevās pievienot komentāru");
   }
 };
-
-
-const handleFile = (e) => {
-  cvFile.value = e.target.files[0];
-};
-const formatDate = (dateString) => {
-  if (!dateString) return '';
-  const options = {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-  };
-  return new Date(dateString).toLocaleString(undefined, options);
-};
+const handleFile = (e) => (cvFile.value = e.target.files[0]);
+const formatDate = (d) => (d ? new Date(d).toLocaleString() : "");
 const submitApplication = async () => {
-  if (!coverLetter.value && !cvFile.value) {
-    alert("Please add a cover letter or attach your CV.");
-    return;
-  }
-
+  if (!coverLetter.value && !cvFile.value) return alert("Pievieno motivācijas vēstuli vai CV.");
   const formData = new FormData();
   formData.append("cover_letter", coverLetter.value);
   if (cvFile.value) formData.append("cv", cvFile.value);
-
   try {
     await api.post(`/vacancies/${vacancy.value.id}/apply`, formData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "multipart/form-data",
-      },
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
     });
-    alert("Application submitted!");
+    alert("Pieteikums nosūtīts!");
     coverLetter.value = "";
     cvFile.value = null;
     showApplicationModal.value = false;
   } catch (err) {
     console.error(err);
-    alert(err.response?.data?.message || "Failed to submit application");
+    alert(err.response?.data?.message || "Neizdevās nosūtīt pieteikumu");
   }
 };
-
 const fetchFavorites = async () => {
   if (!isLoggedIn) return;
   try {
-    const res = await api.get("/favorites", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    isFavorited.value = res.data.some(fav => fav.job_vacancy_id === vacancy.value.id);
+    const res = await api.get("/favorites", { headers: { Authorization: `Bearer ${token}` } });
+    isFavorited.value = res.data.some((f) => f.job_vacancy_id === vacancy.value.id);
   } catch {}
 };
-
 const toggleFavorite = async () => {
-  if (!isLoggedIn) {
-    alert("You need to log in to add favorites");
-    return;
-  }
-
+  if (!isLoggedIn) return alert("Lūdzu pieslēdzies, lai pievienotu favorītiem");
   try {
     const res = await api.post(`/favorites/toggle/${vacancy.value.id}`, null, {
       headers: { Authorization: `Bearer ${token}` },
     });
     isFavorited.value = res.data.favorited;
-    alert(res.data.message);
   } catch (err) {
     console.error(err);
-    alert(err.response?.data?.message || "Action failed");
+    alert(err.response?.data?.message || "Neizdevās veikt darbību");
   }
 };
 onMounted(async () => {
@@ -164,123 +263,6 @@ onMounted(async () => {
   await fetchFavorites();
 });
 </script>
-
-<template>
-  <div v-if="vacancy" class="max-w-3xl mx-auto p-6 space-y-6 bg-white rounded-2xl shadow-lg">
-    <!-- Vacancy Header -->
-    <div class="flex justify-between items-start">
-      <div>
-        <h1 class="text-4xl font-bold text-gray-800">{{ vacancy.title }}</h1>
-        <p class="text-gray-500 mt-1">{{ vacancy.company }}</p>
-        <p class="mt-1 text-gray-500">Location: {{ vacancy.county }}</p>
-      </div>
-        <button
-      @click="toggleFavorite"
-      class="px-4 py-2 rounded-lg border bg-white hover:bg-gray-100 transition"
-    >
-      {{ isFavorited ? "Remove from Favorites" : "Add to Favorites" }}
-    </button>
-
-      <button
-        v-if="user && vacancy.user_id === user.id || role === 'admin'"
-        @click="deleteVacancy"
-        class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
-      >
-        Delete
-      </button>
-    </div>
-
-    <!-- Company Logo -->
-    <div class="flex items-center mt-4">
-      <img
-        v-if="vacancy.logo_url"
-        :src="vacancy.logo_url"
-        alt="Company Logo"
-        class="w-32 h-32 object-cover rounded-xl border"
-      />
-    </div>
-
-    <!-- Description & Salary -->
-    <p class="mt-4 text-gray-700 leading-relaxed">{{ vacancy.description }}</p>
-    <p class="mt-3 font-semibold text-indigo-600 text-lg">Salary: {{ vacancy.salary }}</p>
-
-    <!-- Apply Button -->
-    <div v-if="isLoggedIn && role !== 'uzņēmējs'" class="mt-6">
-      <button
-        @click="showApplicationModal = true"
-        class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
-      >
-        Apply Now
-      </button>
-    </div>
-
-    <div class="mt-8">
-  <h2 class="text-2xl font-semibold mb-4">Comments</h2>
-
-  <!-- Add new comment -->
-  <div v-if="isLoggedIn" class="mb-6">
-    <textarea
-      v-model="newComment.comment_text"
-      placeholder="Write a comment..."
-      class="w-full p-3 border rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
-    ></textarea>
-    <button
-      @click="addComment"
-      class="mt-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
-    >
-      Post Comment
-    </button>
-  </div>
-
-  <!-- Comment List -->
-  <div v-if="comments.length > 0" class="space-y-4">
-    <div
-      v-for="(comment, index) in comments"
-      :key="index"
-      class="p-4 bg-gray-100 rounded-lg"
-    >
-      <!-- Comment text -->
-      <p class="text-gray-800">{{ comment.comment_text }}</p>
-
-      <!-- User and timestamp -->
-      <p class="text-gray-500 text-sm mt-1">
-        By {{ comment.user?.name || 'Anonymous' }} • 
-        {{ formatDate(comment.created_at) }}
-      </p>
-    </div>
-  </div>
-  <div v-else class="text-gray-400 text-sm">No comments yet.</div>
-</div>
-  </div>
-
-  <!-- Loading -->
-  <div v-else class="text-center text-gray-500 mt-10">Loading...</div>
-
-  <!-- Application Modal -->
-  <div
-    v-if="showApplicationModal"
-    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-  >
-    <div class="bg-white rounded-2xl p-6 w-full max-w-lg relative">
-      <button @click="showApplicationModal = false" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800">
-        &times;
-      </button>
-      <h2 class="text-2xl font-semibold mb-4">Apply for {{ vacancy.title }}</h2>
-      <textarea
-        v-model="coverLetter"
-        placeholder="Write your cover letter..."
-        class="w-full border rounded-lg p-2 mb-2 focus:ring-indigo-500 focus:border-indigo-500"
-      ></textarea>
-      <input type="file" @change="handleFile" accept="application/pdf" class="mb-2" />
-      <button
-        @click="submitApplication"
-        class="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
-      >
-        Submit Application
-      </button>
-    </div>
-  </div>
-</template>
 
 <style scoped>
 textarea {

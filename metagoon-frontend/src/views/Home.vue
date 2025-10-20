@@ -5,9 +5,12 @@
       <section
         class="relative overflow-hidden rounded-3xl border border-indigo-900/30 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 shadow-2xl"
       >
-        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-indigo-800/20 via-fuchsia-800/10 to-transparent pointer-events-none"></div>
+        <div
+          class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-indigo-800/20 via-fuchsia-800/10 to-transparent pointer-events-none"
+        ></div>
 
         <div class="grid gap-10 p-10 lg:grid-cols-2 lg:p-16 relative z-10">
+          <!-- LEFT COLUMN -->
           <div class="space-y-6">
             <h1
               class="text-5xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-400 via-fuchsia-400 to-cyan-400 bg-clip-text text-transparent"
@@ -21,24 +24,36 @@
             <!-- Search bar -->
             <form
               class="flex flex-col gap-3 rounded-2xl border border-gray-700 bg-gray-900/70 p-4 shadow-lg md:flex-row"
-              @submit.prevent
+              @submit.prevent="handleSearch"
             >
               <input
+                v-model="keyword"
                 type="text"
                 placeholder="🔍 Amats vai atslēgvārds"
                 class="flex-1 rounded-xl border border-gray-700 bg-gray-800/60 px-4 py-2 text-sm text-gray-100 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/40"
               />
-              <input
-                type="text"
-                placeholder="📍 Pilsēta (piem., Rīga)"
+
+              <select
+                v-model="county"
                 class="w-full md:w-56 rounded-xl border border-gray-700 bg-gray-800/60 px-4 py-2 text-sm text-gray-100 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/40"
-              />
-              <RouterLink
-                to="/vakances"
+              >
+                <option value="">📍 Izvēlies pilsētu</option>
+                <option value="Rīga">Rīga</option>
+                <option value="Liepāja">Liepāja</option>
+                <option value="Jelgava">Jelgava</option>
+                <option value="Daugavpils">Daugavpils</option>
+                <option value="Valmiera">Valmiera</option>
+                <option value="Ogre">Ogre</option>
+                <option value="Ventspils">Ventspils</option>
+                <option value="Rēzekne">Rēzekne</option>
+              </select>
+
+              <button
+                type="submit"
                 class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-indigo-600 via-fuchsia-500 to-cyan-500 px-5 py-2 text-sm font-semibold text-white shadow hover:opacity-90 active:scale-[.98] transition"
               >
                 Meklēt
-              </RouterLink>
+              </button>
             </form>
 
             <!-- CTAs -->
@@ -58,16 +73,16 @@
             </div>
           </div>
 
-          <!-- Stats card -->
+          <!-- RIGHT COLUMN: Stats -->
           <div class="flex items-center justify-center">
             <div
               class="w-full rounded-2xl border border-indigo-900/30 bg-gray-900/60 p-8 shadow-lg backdrop-blur-lg space-y-8"
             >
               <h3 class="text-gray-400 text-sm font-medium">MetaGoon skaitļos</h3>
               <div class="grid grid-cols-3 gap-6">
-                <StatCard number="2,450+" label="Vakances" />
-                <StatCard number="780+" label="Darba devēji" />
-                <StatCard number="12k+" label="Kandidāti" />
+                <StatCard :number="stats.vacancies" label="Vakances" />
+                <StatCard :number="stats.companies" label="Darba devēji" />
+                <StatCard :number="stats.unemployed" label="Kandidāti" />
               </div>
               <p class="text-gray-400 text-sm border-t border-gray-700 pt-4">
                 Saglabā favorītus un saņem paziņojumus par jaunām vakancēm, kas atbilst taviem kritērijiem.
@@ -79,7 +94,9 @@
 
       <!-- FEATURES -->
       <section class="space-y-10">
-        <h2 class="text-center text-3xl font-extrabold bg-gradient-to-r from-indigo-400 via-fuchsia-400 to-cyan-400 bg-clip-text text-transparent">
+        <h2
+          class="text-center text-3xl font-extrabold bg-gradient-to-r from-indigo-400 via-fuchsia-400 to-cyan-400 bg-clip-text text-transparent"
+        >
           Kā MetaGoon palīdz
         </h2>
         <div class="grid gap-8 md:grid-cols-3">
@@ -128,10 +145,14 @@
       <section
         class="rounded-3xl border border-indigo-900/30 bg-gradient-to-r from-indigo-950 via-gray-900 to-gray-950 p-10 text-center shadow-xl"
       >
-        <h3 class="text-3xl font-extrabold bg-gradient-to-r from-indigo-400 via-fuchsia-400 to-cyan-400 bg-clip-text text-transparent">
+        <h3
+          class="text-3xl font-extrabold bg-gradient-to-r from-indigo-400 via-fuchsia-400 to-cyan-400 bg-clip-text text-transparent"
+        >
           Gatavs sākt?
         </h3>
-        <p class="mt-2 text-gray-400">Izveido kontu minūtes laikā un atrodi savu nākamo iespēju.</p>
+        <p class="mt-2 text-gray-400">
+          Izveido kontu minūtes laikā un atrodi savu nākamo iespēju.
+        </p>
         <div class="mt-6 flex justify-center gap-3">
           <RouterLink
             to="/registracija"
@@ -152,13 +173,44 @@
 </template>
 
 <script setup>
-import { RouterLink } from "vue-router";
-import { defineComponent, h } from "vue";
+import { RouterLink, useRouter } from "vue-router";
+import { ref, defineComponent, h, onMounted } from "vue";
+import api from "@/services/api.js"; // make sure this is your axios instance
 
+/* --- Search Logic --- */
+const router = useRouter();
+const keyword = ref("");
+const county = ref("");
+
+const handleSearch = () => {
+  if (!keyword.value && !county.value) return;
+  router.push({
+    path: "/vakances",
+    query: { keyword: keyword.value, county: county.value },
+  });
+};
+
+/* --- Dynamic Stats --- */
+const stats = ref({
+  vacancies: 0,
+  companies: 0,
+  unemployed: 0,
+});
+
+const fetchStats = async () => {
+  try {
+    const res = await api.get("/stats");
+    stats.value = res.data;
+  } catch (err) {
+    console.error("Failed to load stats:", err);
+  }
+};
+
+onMounted(fetchStats);
 
 /* --- Stat Card --- */
 const StatCard = defineComponent({
-  props: { number: String, label: String },
+  props: { number: [String, Number], label: String },
   setup(props) {
     return () =>
       h("div", { class: "text-center rounded-xl bg-gray-800/50 p-4 border border-gray-700" }, [
@@ -173,13 +225,24 @@ const FeatureCard = defineComponent({
   props: { title: String, desc: String, iconColor: String },
   setup(props) {
     return () =>
-      h("div", { class: "rounded-2xl border border-gray-700 bg-gray-900/60 p-6 shadow-lg hover:border-indigo-500/40 transition" }, [
-        h("div", {
-          class: `mb-4 h-10 w-10 rounded-xl bg-gradient-to-r ${props.iconColor} flex items-center justify-center text-white`,
-        }, "★"),
-        h("h3", { class: "text-lg font-semibold text-white" }, props.title),
-        h("p", { class: "mt-2 text-sm text-gray-400" }, props.desc),
-      ]);
+      h(
+        "div",
+        {
+          class:
+            "rounded-2xl border border-gray-700 bg-gray-900/60 p-6 shadow-lg hover:border-indigo-500/40 transition",
+        },
+        [
+          h(
+            "div",
+            {
+              class: `mb-4 h-10 w-10 rounded-xl bg-gradient-to-r ${props.iconColor} flex items-center justify-center text-white`,
+            },
+            "★"
+          ),
+          h("h3", { class: "text-lg font-semibold text-white" }, props.title),
+          h("p", { class: "mt-2 text-sm text-gray-400" }, props.desc),
+        ]
+      );
   },
 });
 
@@ -207,12 +270,13 @@ const CategoryPill = defineComponent({
 });
 </script>
 
+
 <style scoped>
 .home {
   background-color: #0b0c10;
 }
 :global(body) {
   background-color: #0b0c10;
-  color: #f3f4f6; /* soft gray text for consistency */
+  color: #f3f4f6;
 }
 </style>
