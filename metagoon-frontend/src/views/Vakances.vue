@@ -175,8 +175,20 @@ if (route.query.category && typeof route.query.category === "string") {
   selectedCategory.value = route.query.category;
 }
 
-watch(() => route.query.category, (newCategory) => {
-  selectedCategory.value = typeof newCategory === "string" ? newCategory : "";
+watch(
+  () => route.query,
+  (query) => {
+    searchQuery.value = typeof query.keyword === "string" ? query.keyword : "";
+    selectedCounty.value = typeof query.county === "string" ? query.county : "";
+    selectedCategory.value = typeof query.category === "string" ? query.category : "";
+  },
+  { deep: true }
+);
+
+watch([searchQuery, selectedCounty, selectedCategory], ([keyword, county, category]) => {
+  router.replace({
+    query: { keyword, county, category },
+  });
 });
 
 const filteredJobs = computed(() => {
@@ -239,6 +251,16 @@ const createVacancy = async () => {
 };
 
 onMounted(() => {
+  if (typeof route.query.keyword === "string") {
+    searchQuery.value = route.query.keyword;
+  }
+  if (typeof route.query.county === "string") {
+    selectedCounty.value = route.query.county;
+  }
+  if (typeof route.query.category === "string") {
+    selectedCategory.value = route.query.category;
+  }
+
   fetchUser();
   fetchJobs();
 });
