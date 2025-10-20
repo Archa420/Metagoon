@@ -5,7 +5,7 @@ import api from "@/services/api";
 
 const route = useRoute();
 const router = useRouter();
-
+const isFavorited = ref(false);
 const vacancy = ref(null);
 const user = ref(null);
 const comments = ref([]);
@@ -130,11 +130,38 @@ const submitApplication = async () => {
   }
 };
 
+const fetchFavorites = async () => {
+  if (!isLoggedIn) return;
+  try {
+    const res = await api.get("/favorites", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    isFavorited.value = res.data.some(fav => fav.job_vacancy_id === vacancy.value.id);
+  } catch {}
+};
 
+const toggleFavorite = async () => {
+  if (!isLoggedIn) {
+    alert("You need to log in to add favorites");
+    return;
+  }
+
+  try {
+    const res = await api.post(`/favorites/toggle/${vacancy.value.id}`, null, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    isFavorited.value = res.data.favorited;
+    alert(res.data.message);
+  } catch (err) {
+    console.error(err);
+    alert(err.response?.data?.message || "Action failed");
+  }
+};
 onMounted(async () => {
   await fetchVacancy();
   await fetchComments();
   await fetchUser();
+  await fetchFavorites();
 });
 </script>
 
@@ -147,6 +174,12 @@ onMounted(async () => {
         <p class="text-gray-500 mt-1">{{ vacancy.company }}</p>
         <p class="mt-1 text-gray-500">Location: {{ vacancy.county }}</p>
       </div>
+        <button
+      @click="toggleFavorite"
+      class="px-4 py-2 rounded-lg border bg-white hover:bg-gray-100 transition"
+    >
+      {{ isFavorited ? "Remove from Favorites" : "Add to Favorites" }}
+    </button>
 
       <button
         v-if="user && vacancy.user_id === user.id || role === 'admin'"

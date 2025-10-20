@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\JobVacanciesController;
 use App\Http\Controllers\JobApplicationsController;
 use App\Http\Controllers\JobComments;
+use App\Http\Controllers\FavoriteController;
 
 // Auth routes
 Route::post('/register', [AuthController::class, 'register']);
@@ -23,7 +24,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', fn (Request $request) => $request->user());
     Route::get('/profile', [AuthController::class, 'profile']);
     Route::post('/logout', [AuthController::class, 'logout']);
-
+     Route::post('/favorites/toggle/{vacancyId}', [FavoriteController::class, 'toggle']);
+    Route::get('/favorites', [FavoriteController::class, 'index']);
     // Vacancy CRUD
     Route::post('/vacancies', [JobVacanciesController::class, 'store']);
     Route::delete('/vacancies/{id}', [JobVacanciesController::class, 'destroy']);
