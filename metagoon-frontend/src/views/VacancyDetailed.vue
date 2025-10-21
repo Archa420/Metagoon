@@ -94,7 +94,7 @@
           >
             <p class="text-gray-200">{{ comment.comment_text }}</p>
             <p class="text-xs text-gray-500 mt-1">
-              {{ comment.user?.name || "Anonīms" }} • {{ formatDate(comment.created_at) }}
+              {{ comment.user?.username || "Anonīms" }} • {{ formatDate(comment.created_at) }}
             </p>
           </div>
         </div>
