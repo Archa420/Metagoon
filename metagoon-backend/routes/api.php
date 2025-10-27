@@ -14,6 +14,9 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/stats', [\App\Http\Controllers\StatsController::class, 'index']);
 
+// Delete profile
+Route::middleware('auth:sanctum')->delete('/profile/delete', [UserController::class, 'destroy']);
+
 // Public vacancies
 Route::get('/vacancies', [JobVacanciesController::class, 'index']);
 Route::get('/vacancies/{id}', [JobVacanciesController::class, 'show']); // single vacancy

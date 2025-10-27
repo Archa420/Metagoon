@@ -16,9 +16,28 @@ const form = ref({
   company_number: "",
   company_address: "",
 });
+const showDeletePopup = ref(false);
+const deletePassword = ref("");
 
 const token = localStorage.getItem("token");
 
+const confirmDelete = async () => {
+  if (!deletePassword.value) return alert("Lūdzu ievadiet paroli.");
+
+  try {
+    await api.delete("/profile/delete", {
+      headers: { Authorization: `Bearer ${token}` },
+      data: { password: deletePassword.value },
+    });
+
+    alert("Jūsu konts ir dzēsts.");
+    localStorage.removeItem("token");
+    window.location.href = "/"; // redirect to homepage or login
+  } catch (err) {
+    console.error(err);
+    alert(err.response?.data?.message || "Neizdevās dzēst kontu.");
+  }
+};
 const fetchProfile = async () => {
   try {
     const res = await api.get("/profile", {
@@ -169,6 +188,47 @@ onMounted(fetchProfile);
               >
                 Atcelt
               </button>
+              <button
+                @click="showDeletePopup = true"
+                class="rounded-xl border border-red-600 text-red-400 px-6 py-2 text-sm font-semibold hover:bg-red-900/30 transition"
+              >
+                Dzēst kontu
+              </button>
+
+              <!-- Delete confirmation modal -->
+              <div
+                v-if="showDeletePopup"
+                class="fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center z-50"
+              >
+                <div class="bg-gray-900 rounded-2xl p-8 w-full max-w-sm border border-gray-700 text-center">
+                  <h3 class="text-xl font-semibold text-red-400 mb-4">Apstipriniet konta dzēšanu</h3>
+                  <p class="text-gray-400 mb-4 text-sm">
+                    Lūdzu ievadiet savu paroli, lai apstiprinātu konta dzēšanu.
+                  </p>
+
+                  <input
+                    v-model="deletePassword"
+                    type="password"
+                    placeholder="Parole"
+                    class="input-style mb-4"
+                  />
+
+                  <div class="flex justify-center gap-4">
+                    <button
+                      @click="confirmDelete"
+                      class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl text-sm font-semibold"
+                    >
+                      Dzēst
+                    </button>
+                    <button
+                      @click="showDeletePopup = false"
+                      class="border border-gray-700 px-4 py-2 rounded-xl text-sm font-semibold text-gray-300 hover:bg-gray-800 transition"
+                    >
+                      Atcelt
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 
 class UserController extends Controller
 {
@@ -47,4 +48,17 @@ class UserController extends Controller
         // Return updated profile
         return response()->json($user);
     }
+    // Delete user profile
+    public function destroy(Request $request){
+            $user = $request->user();
+            $password = $request->input('password');
+
+            if (!$password || !Hash::check($password, $user->password)) {
+                return response()->json(['message' => 'Nepareiza parole.'], 400);
+            }
+
+            $user->delete();
+
+            return response()->json(['message' => 'Konts veiksmīgi dzēsts.']);
+        }
 }
