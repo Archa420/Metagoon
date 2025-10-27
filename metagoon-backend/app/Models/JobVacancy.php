@@ -15,6 +15,7 @@ class JobVacancy extends Model
         'company',
         'salary',
         'description',
+        'salary_type',
         'logo',
         'category',
         'county',

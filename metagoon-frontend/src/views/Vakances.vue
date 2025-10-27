@@ -115,13 +115,20 @@
             required
             class="input-style"
           />
-          <input
-            v-model="newVacancy.salary"
-            type="text"
-            placeholder="Alga"
-            required
-            class="input-style"
-          />
+          <div class="flex gap-4">
+            <input
+              v-model.number="newVacancy.salary"
+              type="number"
+              placeholder="Alga (tikai cipari)"
+              required
+              min="0"
+              class="input-style flex-grow"
+            />
+            <select v-model="newVacancy.salary_type" required class="input-style w-1/3">
+              <option value="Brutto">Brutto</option>
+              <option value="Neto">Neto</option>
+            </select>
+          </div>
           <select v-model="newVacancy.category" required class="input-style">
             <option value="" disabled>Izvēlies kategoriju</option>
             <option value="IT & Programmēšana">IT & Programmēšana</option>
@@ -203,7 +210,8 @@ const favorites = ref([]);
 
 const newVacancy = ref({
   title: "",
-  salary: "",
+  salary: 0, 
+  salary_type: "Brutto", 
   description: "",
   category: "",
   county: "",
@@ -309,13 +317,21 @@ const createVacancy = async () => {
       });
       logoPath = uploadRes.data.path;
     }
-    await api.post("/vacancies", {
-      ...newVacancy.value,
-      logo: logoPath,
-    });
+    
+    // Ensure salary is a string before sending, but keep the number input logic
+    const payload = {
+        ...newVacancy.value,
+        salary: newVacancy.value.salary.toString(),
+        logo: logoPath,
+    };
+    
+    await api.post("/vacancies", payload);
+    
+    // Reset form data, including new field
     newVacancy.value = {
       title: "",
-      salary: "",
+      salary: 0,
+      salary_type: "Brutto",
       description: "",
       category: "",
       county: "",

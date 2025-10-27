@@ -41,21 +41,41 @@ class JobVacanciesController extends Controller
         if (!$user) return response()->json(['message' => 'Unauthenticated'], 401);
 
         $validated = $request->validate([
-            'title'       => 'required|string|max:255',
-            'salary'      => 'required|string|max:255',
-            'description' => 'required|string',
-            'category'    => 'required|string|max:100',
-            'county'      => 'required|string|max:100',
-            'logo'        => 'nullable|string|max:255',
-        ]);
+        'title'       => 'required|string|max:255',
+        'salary'      => 'required|numeric',
+        'salary_type' => 'required|in:Brutto,Neto',  
+        'description' => 'required|string',
+        'category'    => 'required|string|max:100',
+        'county'      => 'required|string|max:100',
+        'logo'        => 'nullable|string|max:255',
+    ]);
 
         $validated['user_id'] = $user->id;
         $validated['company'] = $user->company_name ?? ($request->input('company') ?? 'Nezināms uzņēmums');
 
         $vacancy = JobVacancy::create($validated);
-        $vacancy->logo_url = $vacancy->logo ? asset("storage/{$vacancy->logo}") : null;
+        // ...
+    }
 
-        return response()->json($vacancy, 201);
+    public function update(Request $request, $id)
+    {
+        $vacancy = JobVacancy::findOrFail($id);
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'salary' => 'required|string|max:255',
+            'salary_type' => 'required|string|in:Brutto,Neto',
+            'description' => 'required|string',
+            'category' => 'required|string',
+            'county' => 'required|string',
+        ]);
+
+        $vacancy->update($validated);
+
+        return response()->json([
+            'message' => 'Vakance veiksmīgi atjaunota',
+            'data' => $vacancy,
+        ]);
     }
 
     // Delete vacancy

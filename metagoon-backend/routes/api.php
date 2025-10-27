@@ -36,6 +36,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Vacancy CRUD & applications
     Route::post('/vacancies', [JobVacanciesController::class, 'store']);
+    Route::put('/vacancies/{id}', [JobVacanciesController::class, 'update']);
     Route::delete('/vacancies/{id}', [JobVacanciesController::class, 'destroy']);
     Route::post('/vacancies/{id}/apply', [JobApplicationsController::class, 'apply']);
     Route::get('/applications', [JobApplicationsController::class, 'employerApplications']);
