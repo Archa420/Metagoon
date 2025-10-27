@@ -13,15 +13,14 @@
              from-indigo-600/20 via-fuchsia-600/10 to-transparent pointer-events-none"
     ></div>
 
-    <!-- Remove Button (only for favorites) -->
+    <!-- Favorite Toggle Button -->
     <button
-      v-if="isFavorite"
-      @click.stop="emit('remove')"
-      class="absolute top-3 right-3 px-2.5 py-1 text-xs font-semibold rounded-md
-             text-red-400 border border-red-500/40 bg-black/40 hover:bg-red-500/10
-             hover:scale-105 active:scale-95 transition-all duration-200 z-20"
+      @click.stop="toggleFavorite"
+      class="absolute top-3 right-3 text-xl transition-all duration-300 z-20 active:scale-90"
+      :class="isFavorited ? 'text-pink-500 scale-110' : 'text-gray-500 hover:text-pink-400'"
+      title="Pievienot favorītiem"
     >
-      ✕
+      <i :class="isFavorited ? 'fas fa-heart' : 'far fa-heart'"></i>
     </button>
 
     <div class="relative flex items-start gap-5 z-10">
@@ -75,7 +74,9 @@
 </template>
 
 <script setup>
+import { ref, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
+import api from "@/services/api";
 
 const props = defineProps({
   id: Number,
@@ -89,8 +90,39 @@ const props = defineProps({
   isFavorite: { type: Boolean, default: false },
 });
 
-const emit = defineEmits(["remove"]);
+const emit = defineEmits(["favoriteChanged"]);
 const router = useRouter();
+const token = localStorage.getItem("token");
+const isFavorited = ref(props.isFavorite);
+
+const toggleFavorite = async () => {
+  if (!token) {
+    alert("Lūdzu pieslēdzieties, lai pievienotu favorītiem.");
+    return;
+  }
+
+  try {
+    const res = await api.post(`/favorites/${props.id}`, {}, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    isFavorited.value = res.data.favorited;
+    emit("favoriteChanged", { id: props.id, favorited: isFavorited.value });
+  } catch (err) {
+    console.error(err);
+    alert("Neizdevās mainīt favorītu statusu.");
+  }
+};
+
+onMounted(() => {
+  isFavorited.value = props.isFavorite;
+});
+
+watch(
+  () => props.isFavorite,
+  (newVal) => {
+    isFavorited.value = newVal;
+  }
+);
 
 const goToVacancy = () => router.push(`/vacancy/${props.id}`);
 </script>
@@ -101,5 +133,6 @@ const goToVacancy = () => router.push(`/vacancy/${props.id}`);
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  line-clamp: 2; /* Standard property */
 }
 </style>

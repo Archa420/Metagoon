@@ -3,7 +3,9 @@
     <div class="mx-auto max-w-7xl px-6 py-16 space-y-16">
       <!-- HERO -->
       <section class="text-center space-y-4">
-        <h1 class="text-5xl font-extrabold bg-gradient-to-r from-indigo-400 via-fuchsia-400 to-cyan-400 bg-clip-text text-transparent">
+        <h1
+          class="text-5xl font-extrabold bg-gradient-to-r from-indigo-400 via-fuchsia-400 to-cyan-400 bg-clip-text text-transparent"
+        >
           Atrodi savu nākamo darbu
         </h1>
         <p class="text-gray-400 text-lg max-w-2xl mx-auto">
@@ -12,7 +14,9 @@
       </section>
 
       <!-- FILTERS -->
-      <section class="rounded-3xl border border-indigo-900/30 bg-gray-900/60 shadow-xl p-6 backdrop-blur-lg space-y-6">
+      <section
+        class="rounded-3xl border border-indigo-900/30 bg-gray-900/60 shadow-xl p-6 backdrop-blur-lg space-y-6"
+      >
         <h2 class="text-xl font-semibold text-gray-100">Filtrēšana</h2>
         <div class="flex flex-col md:flex-row gap-4">
           <input
@@ -71,13 +75,18 @@
 
       <!-- VACANCY LIST -->
       <section>
-        <div v-if="filteredJobs.length" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div
+          v-if="filteredJobs.length"
+          class="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+        >
           <JobCard
             v-for="job in filteredJobs"
             :key="job.id"
             v-bind="job"
             :currentUserId="user?.id"
             :role="user?.role"
+            :isFavorite="favorites.includes(job.id)"
+            @favoriteChanged="onFavoriteChanged"
           />
         </div>
         <div v-else class="text-gray-400 text-center py-20">
@@ -86,19 +95,33 @@
       </section>
     </div>
 
-    <!-- MODAL -->
+    <!-- CREATE MODAL -->
     <div
       v-if="showModal"
       class="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50"
     >
-      <div class="bg-gray-900 rounded-3xl border border-indigo-900/40 p-8 shadow-2xl w-full max-w-lg space-y-4">
+      <div
+        class="bg-gray-900 rounded-3xl border border-indigo-900/40 p-8 shadow-2xl w-full max-w-lg space-y-4"
+      >
         <h2 class="text-2xl font-extrabold text-gray-100">
           Izveidot jaunu vakanci
         </h2>
 
         <form @submit.prevent="createVacancy" class="space-y-4">
-          <input v-model="newVacancy.title" type="text" placeholder="Nosaukums" required class="input-style" />
-          <input v-model="newVacancy.salary" type="text" placeholder="Alga" required class="input-style" />
+          <input
+            v-model="newVacancy.title"
+            type="text"
+            placeholder="Nosaukums"
+            required
+            class="input-style"
+          />
+          <input
+            v-model="newVacancy.salary"
+            type="text"
+            placeholder="Alga"
+            required
+            class="input-style"
+          />
           <select v-model="newVacancy.category" required class="input-style">
             <option value="" disabled>Izvēlies kategoriju</option>
             <option value="IT & Programmēšana">IT & Programmēšana</option>
@@ -112,7 +135,6 @@
           </select>
           <select v-model="newVacancy.county" required class="input-style">
             <option value="" disabled>Izvēlies novadu / pilsētu</option>
-            <option value="">Visi novadi / pilsētas</option>
             <option value="Rīga">Rīga</option>
             <option value="Liepāja">Liepāja</option>
             <option value="Jelgava">Jelgava</option>
@@ -122,21 +144,41 @@
             <option value="Ventspils">Ventspils</option>
             <option value="Rēzekne">Rēzekne</option>
           </select>
-          <textarea v-model="newVacancy.description" placeholder="Apraksts" required class="input-style"></textarea>
+          <textarea
+            v-model="newVacancy.description"
+            placeholder="Apraksts"
+            required
+            class="input-style"
+          ></textarea>
 
           <div class="space-y-2">
-            <input type="file" accept="image/*" @change="handleFileChange" class="text-sm text-gray-300" />
-            <img v-if="logoPreview" :src="logoPreview" class="mt-2 w-32 h-32 object-contain border border-gray-700 rounded-lg" />
+            <input
+              type="file"
+              accept="image/*"
+              @change="handleFileChange"
+              class="text-sm text-gray-300"
+            />
+            <img
+              v-if="logoPreview"
+              :src="logoPreview"
+              class="mt-2 w-32 h-32 object-contain border border-gray-700 rounded-lg"
+            />
           </div>
 
-          <button type="submit" class="w-full rounded-xl bg-gradient-to-r from-indigo-600 via-fuchsia-500 to-cyan-500 py-2.5 font-semibold text-white shadow-lg hover:opacity-90 transition">
+          <button
+            type="submit"
+            class="w-full rounded-xl bg-gradient-to-r from-indigo-600 via-fuchsia-500 to-cyan-500 py-2.5 font-semibold text-white shadow-lg hover:opacity-90 transition"
+          >
             Saglabāt vakanci
           </button>
 
           <div v-if="error" class="text-red-500 text-sm mt-2">{{ error }}</div>
         </form>
 
-        <button @click="showModal = false" class="w-full mt-2 rounded-xl bg-gray-800/50 py-2 text-gray-200 hover:bg-gray-700 transition">
+        <button
+          @click="showModal = false"
+          class="w-full mt-2 rounded-xl bg-gray-800/50 py-2 text-gray-200 hover:bg-gray-700 transition"
+        >
           Aizvērt
         </button>
       </div>
@@ -157,6 +199,7 @@ const logoPreview = ref(null);
 const error = ref(null);
 const route = useRoute();
 const router = useRouter();
+const favorites = ref([]);
 
 const newVacancy = ref({
   title: "",
@@ -171,6 +214,7 @@ const selectedCategory = ref("");
 const selectedCounty = ref("");
 const searchQuery = ref("");
 
+// keep filters from URL
 if (route.query.category && typeof route.query.category === "string") {
   selectedCategory.value = route.query.category;
 }
@@ -179,26 +223,45 @@ watch(
   () => route.query,
   (query) => {
     searchQuery.value = typeof query.keyword === "string" ? query.keyword : "";
-    selectedCounty.value = typeof query.county === "string" ? query.county : "";
-    selectedCategory.value = typeof query.category === "string" ? query.category : "";
+    selectedCounty.value =
+      typeof query.county === "string" ? query.county : "";
+    selectedCategory.value =
+      typeof query.category === "string" ? query.category : "";
   },
   { deep: true }
 );
 
-watch([searchQuery, selectedCounty, selectedCategory], ([keyword, county, category]) => {
-  router.replace({
-    query: { keyword, county, category },
-  });
-});
+watch(
+  [searchQuery, selectedCounty, selectedCategory],
+  ([keyword, county, category]) => {
+    router.replace({
+      query: { keyword, county, category },
+    });
+  }
+);
 
 const filteredJobs = computed(() => {
   return jobs.value.filter((job) => {
-    const matchCategory = selectedCategory.value ? job.category === selectedCategory.value : true;
-    const matchCounty = selectedCounty.value ? job.county === selectedCounty.value : true;
-    const matchSearch = searchQuery.value ? job.title.toLowerCase().includes(searchQuery.value.toLowerCase()) : true;
+    const matchCategory = selectedCategory.value
+      ? job.category === selectedCategory.value
+      : true;
+    const matchCounty = selectedCounty.value
+      ? job.county === selectedCounty.value
+      : true;
+    const matchSearch = searchQuery.value
+      ? job.title.toLowerCase().includes(searchQuery.value.toLowerCase())
+      : true;
     return matchCategory && matchCounty && matchSearch;
   });
 });
+
+const onFavoriteChanged = ({ id, favorited }) => {
+  if (favorited && !favorites.value.includes(id)) {
+    favorites.value.push(id);
+  } else {
+    favorites.value = favorites.value.filter((favId) => favId !== id);
+  }
+};
 
 const fetchJobs = async () => {
   try {
@@ -213,8 +276,14 @@ const fetchUser = async () => {
   try {
     const res = await api.get("/user");
     user.value = res.data;
+
+    const favRes = await api.get("/favorites", {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    });
+    favorites.value = favRes.data.map((f) => f.job_vacancy_id);
   } catch {
     user.value = null;
+    favorites.value = [];
   }
 };
 
@@ -240,8 +309,18 @@ const createVacancy = async () => {
       });
       logoPath = uploadRes.data.path;
     }
-    await api.post("/vacancies", { ...newVacancy.value, logo: logoPath });
-    newVacancy.value = { title: "", salary: "", description: "", category: "", county: "", logo: null };
+    await api.post("/vacancies", {
+      ...newVacancy.value,
+      logo: logoPath,
+    });
+    newVacancy.value = {
+      title: "",
+      salary: "",
+      description: "",
+      category: "",
+      county: "",
+      logo: null,
+    };
     logoPreview.value = null;
     showModal.value = false;
     fetchJobs();
@@ -278,7 +357,7 @@ onMounted(() => {
 }
 .input-style:focus {
   outline: none;
-  border-color: rgb(99, 102, 241);
+  border-color: rgb(99 102 241);
   box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.4);
 }
 </style>
