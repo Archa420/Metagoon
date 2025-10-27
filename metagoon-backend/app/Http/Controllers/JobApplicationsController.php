@@ -60,9 +60,9 @@ class JobApplicationsController extends Controller
 
         $applications = JobApplication::query()
             ->whereHas('vacancy', fn($q) => $q->where('user_id', $user->id))
-            ->with('vacancy:id,title')
+            ->with(['vacancy:id,title', 'user:id,firstname,lastname,email'])
             ->latest()
-            ->get(['id', 'vacancy_id', 'cover_letter', 'cv_path', 'created_at']);
+            ->get(['id', 'vacancy_id', 'user_id', 'cover_letter', 'cv_path', 'created_at']);
 
         // Add a preview URL for CV viewer
         $applications->transform(function ($app) {
