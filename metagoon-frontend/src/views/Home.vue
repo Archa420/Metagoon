@@ -169,6 +169,66 @@
         </div>
       </section>
     </div>
+    <!-- AI Assistant Floating Button -->
+    <div class="fixed bottom-6 right-6 z-50">
+      <!-- Chat Window -->
+      <transition name="fade">
+        <div
+          v-if="chatOpen"
+          class="mb-4 w-80 h-96 rounded-2xl border border-gray-700 bg-gray-900/90 backdrop-blur-md shadow-2xl flex flex-col overflow-hidden"
+        >
+          <div class="bg-gradient-to-r from-indigo-600 via-fuchsia-500 to-cyan-500 p-3 text-white font-semibold">
+            MetaGoon Assistant
+          </div>
+          <div class="flex-1 p-3 text-sm text-gray-300 overflow-y-auto space-y-2">
+            <div
+              v-for="(msg, index) in chatMessages"
+              :key="index"
+              :class="msg.sender === 'user' ? 'text-right' : 'text-left'"
+            >
+              <div
+                :class="[
+                  'inline-block px-3 py-2 rounded-xl max-w-[80%]',
+                  msg.sender === 'user'
+                    ? 'bg-gradient-to-r from-indigo-600 to-fuchsia-500 text-white ml-auto'
+                    : 'bg-gray-800 text-gray-200'
+                ]"
+              >
+                {{ msg.text }}
+              </div>
+            </div>
+
+            <div v-if="loading" class="text-gray-500 text-center text-sm pt-2">
+              Rakstu atbildi...
+            </div>
+          </div>
+
+          <div class="border-t border-gray-700 p-3 flex gap-2">
+            <input
+              v-model="userMessage"
+              @keyup.enter="sendMessage"
+              type="text"
+              placeholder="Raksti ziņu..."
+              class="flex-1 rounded-xl border border-gray-700 bg-gray-800/60 px-3 py-2 text-sm text-gray-100 outline-none"
+            />
+            <button
+              @click="sendMessage"
+              class="rounded-xl bg-gradient-to-r from-indigo-600 via-fuchsia-500 to-cyan-500 px-4 py-2 text-sm font-semibold text-white shadow hover:opacity-90 transition"
+            >
+              Sūtīt
+            </button>
+          </div>
+        </div>
+      </transition>
+
+      <!-- Floating Button -->
+      <button
+        @click="toggleChat"
+        class="rounded-full bg-gradient-to-r from-indigo-600 via-fuchsia-500 to-cyan-500 p-4 shadow-lg hover:opacity-90 active:scale-95 transition"
+      >
+        💬
+      </button>
+    </div>
   </div>
 </template>
 
@@ -181,6 +241,7 @@ import api from "@/services/api.js"; // make sure this is your axios instance
 const router = useRouter();
 const keyword = ref("");
 const county = ref("");
+const chatOpen = ref(false);
 
 const handleSearch = () => {
   if (!keyword.value && !county.value) return;
@@ -189,6 +250,43 @@ const handleSearch = () => {
     query: { keyword: keyword.value, county: county.value },
   });
 };
+
+const toggleChat = () => {
+  chatOpen.value = !chatOpen.value;
+};
+/* --- AI Chat Logic --- */
+const chatMessages = ref([
+  { sender: "ai", text: "👋 Sveiks! Es esmu MetaGoon palīgs. Kā varu palīdzēt?" },
+]);
+const userMessage = ref("");
+const loading = ref(false);
+
+const sendMessage = async () => {
+  if (!userMessage.value.trim()) return;
+
+  // Add user message immediately
+  chatMessages.value.push({ sender: "user", text: userMessage.value });
+  const messageToSend = userMessage.value;
+  userMessage.value = "";
+  loading.value = true;
+
+  try {
+    const res = await fetch("http://localhost:8000/api/assistant", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: messageToSend }),
+    });
+
+    const data = await res.json();
+    chatMessages.value.push({ sender: "ai", text: data.reply || "Nav atbildes." });
+  } catch (err) {
+    chatMessages.value.push({ sender: "ai", text: "⚠️ Neizdevās sazināties ar AI palīgu." });
+    console.error(err);
+  } finally {
+    loading.value = false;
+  }
+};
+
 
 /* --- Dynamic Stats --- */
 const stats = ref({
@@ -272,6 +370,14 @@ const CategoryPill = defineComponent({
 
 
 <style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
 .home {
   background-color: #0b0c10;
 }
