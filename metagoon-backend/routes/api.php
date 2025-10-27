@@ -45,6 +45,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Comments
     Route::post('/comments', [JobComments::class, 'store']);
     Route::get('/vacancies/{id}/comments', [JobComments::class, 'index']);
+    Route::delete('/comments/{id}', [JobComments::class, 'destroy']);
 
     // File uploads
     Route::post('/upload', [JobVacanciesController::class, 'upload']);

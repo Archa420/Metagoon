@@ -96,6 +96,13 @@
             <p class="text-xs text-gray-500 mt-1">
               {{ comment.user?.username || "Anonīms" }} • {{ formatDate(comment.created_at) }}
             </p>
+            <button
+              v-if="comment.user?.id === user?.id"
+              @click="deleteComment(comment.id)"
+              class="text-red-500 text-sm hover:underline mt-2"
+            >
+              Dzēst
+            </button>
           </div>
         </div>
 
@@ -254,6 +261,17 @@ const toggleFavorite = async () => {
   } catch (err) {
     console.error(err);
     alert(err.response?.data?.message || "Neizdevās veikt darbību");
+  }
+};
+const deleteComment = async (commentId) => {
+  try {
+    await api.delete(`/comments/${commentId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    await fetchComments();
+  } catch (err) {
+    console.error(err);
+    alert(err.response?.data?.message || "Neizdevās dzēst komentāru");
   }
 };
 onMounted(async () => {

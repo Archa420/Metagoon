@@ -55,4 +55,30 @@ class JobComments extends Controller
             'data' => $comments,
         ]);
     }
+
+    /**
+     * Dzēš komentāru
+     */
+    public function destroy($id, Request $request)
+    {
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+
+        $comment = Comments::find($id);
+
+        if (!$comment) {
+            return response()->json(['message' => 'Komentārs nav atrasts'], 404);
+        }
+
+        if ($comment->user_id !== $user->id) {
+            return response()->json(['message' => 'Nav atļauts dzēst šo komentāru'], 403);
+        }
+
+        $comment->delete();
+
+        return response()->json(['message' => 'Komentārs veiksmīgi dzēsts']);
+    }
 }
